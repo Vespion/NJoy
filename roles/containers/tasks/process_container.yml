@@ -28,14 +28,9 @@
     group: root
 
 - name: Allow gamemasters to run the management script as container service user
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: managescript.sudoers.j2
     dest: "/etc/sudoers.d/gamemasters-{{ container.name }}"
-    content: >
-      %gamemasters ALL=(svc-{{ container.name }}) NOPASSWD:
-       /usr/local/bin/manage-{{ container.name }} start,
-       /usr/local/bin/manage-{{ container.name }} stop,
-       /usr/local/bin/manage-{{ container.name }} restart,
-       /usr/local/bin/manage-{{ container.name }} status
     mode: '0440'
     validate: /usr/sbin/visudo -cf %s
 

@@ -1,0 +1,1 @@
+%gamemasters ALL=(svc-{{ container.name }}) NOPASSWD: /usr/local/bin/manage-{{ container.name }} start, /usr/local/bin/manage-{{ container.name }} stop, /usr/local/bin/manage-{{ container.name }} restart, /usr/local/bin/manage-{{ container.name }} status
