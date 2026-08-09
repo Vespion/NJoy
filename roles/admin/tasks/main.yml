@@ -32,25 +32,3 @@
     user: "{{ item.name }}"
     key: "{{ lookup('file', '{}.pub'.format(item.name)) }}"
   loop: "{{ users }}"
-
-# - name: Ensure subuid mapping exists for users
-#   ansible.builtin.lineinfile:
-#     path: /etc/subuid
-#     regexp: '^{{ item.name }}:'
-#     line: '{{ item.name }}:100000:65536'
-#     owner: root
-#     group: root
-#     mode: '644'
-#     create: true
-#   loop: "{{ users }}"
-
-# - name: "Ensure subgid mapping exists for {{ item.name }}"
-#   ansible.builtin.lineinfile:
-#     path: /etc/subgid
-#     regexp: '^{{ item.name }}:'
-#     line: '{{ item.name }}:100000:65536'
-#     owner: root
-#     group: root
-#     mode: '644'
-#     create: true
-#   loop: "{{ users }}"

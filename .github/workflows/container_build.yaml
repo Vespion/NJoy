@@ -5,6 +5,8 @@ on:
         required: true
         type: string
 
+name: Container Builder
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
