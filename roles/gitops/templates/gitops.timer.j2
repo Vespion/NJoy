@@ -1,0 +1,13 @@
+[Unit]
+Description=Timer for {{ timer_description | default(timer_name) }}
+
+[Timer]
+# Calendar-based schedule (like cron)
+OnCalendar=*/15
+DeferReactivation=true
+RandomizedDelaySec=15
+
+AccuracySec=5min
+
+[Install]
+WantedBy=timers.target
