@@ -17,7 +17,7 @@ download-additional-files:
 
 download-server-files:
     FROM root+wget
-    RUN wget -O server.zip https://mediafilez.forgecdn.net/files/8572/602/ServerFiles-1.2.0.zip
+    RUN wget -nv -O server.zip https://mediafilez.forgecdn.net/files/8572/602/ServerFiles-1.2.0.zip
     RUN unzip server.zip -d /server
     SAVE ARTIFACT --keep-ts /server/*
 

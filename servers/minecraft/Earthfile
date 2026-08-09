@@ -4,7 +4,7 @@ IMPORT ../.. AS root
 
 mc-monitor:
     FROM root+wget
-    RUN wget -O mc-monitor.tar.gz https://github.com/itzg/mc-monitor/releases/download/0.17.0/mc-monitor_0.17.0_linux_amd64.tar.gz
+    RUN wget -nv -O mc-monitor.tar.gz https://github.com/itzg/mc-monitor/releases/download/0.17.0/mc-monitor_0.17.0_linux_amd64.tar.gz
     RUN tar -xzf mc-monitor.tar.gz
     SAVE ARTIFACT --keep-ts mc-monitor
 
