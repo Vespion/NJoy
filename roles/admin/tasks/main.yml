@@ -1,3 +1,21 @@
+- name: Ensure git and ansible are installed for ansible-pull
+  ansible.builtin.package:
+    name:
+      - ufw
+    state: present
+
+- name: Enable UFW and deny everything
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: in
+    logging: 'medium'
+
+- name: Allow SSH through UFW
+  community.general.ufw:
+    rule: allow
+    name: SSH
+
 - name: Create gamemasters group
   ansible.builtin.group:
     name: gamemasters
