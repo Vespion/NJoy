@@ -9,7 +9,7 @@ mc-monitor:
     SAVE ARTIFACT --keep-ts mc-monitor
 
 modrinth-cli:
-    FROM python:3-slim
+    FROM python:3-slim@sha256:a7fb1e634c4a578f9e0bd6327f11a3cde11b7a9395f48e24360c0988bcc5c2bc
     GIT CLONE https://github.com/Dxrmy/modrinth-cli.git /modrinth-cli
 
 DOWNLOAD_FROM_MODRINTH:
@@ -32,7 +32,7 @@ DOWNLOAD_MODRINTH_DATAPACK:
     WORKDIR /
 
 image:
-    FROM niceos/openjdk21:21.0.12-niceos13
+    FROM niceos/openjdk21:21.0.12-niceos13@sha256:19cc986fed4d5fc6aa924c671611355cbc39199e224e1012203d069c85952d4d
     LABEL org.opencontainers.image.source=https://github.com/Vespion/NJoy
     LABEL org.opencontainers.image.vendor=Vespion
     LABEL org.opencontainers.image.authors="Vespion, MossyMeadows"
