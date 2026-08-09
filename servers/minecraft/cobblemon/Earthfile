@@ -22,7 +22,7 @@ download-server-files:
     SAVE ARTIFACT --keep-ts /server/*
 
 prepare-server-files:
-    FROM niceos/openjdk21:21.0.12-niceos13
+    FROM niceos/openjdk21:21.0.12-niceos13@sha256:19cc986fed4d5fc6aa924c671611355cbc39199e224e1012203d069c85952d4d
     WORKDIR /server
 
     COPY --dir +download-server-files/* .
