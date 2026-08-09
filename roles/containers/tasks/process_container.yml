@@ -11,6 +11,11 @@
   args:
     creates: "/var/lib/systemd/linger/svc-{{ container.name }}"
 
+- name: Ensure user systemd daemon is actively running
+  ansible.builtin.systemd:
+    name: "user@{{ _container_user.uid }}.service"
+    state: started
+
 - name: Deploy UFW Application Profile for container service
   ansible.builtin.template:
     src: ufw-app.j2
