@@ -1,5 +1,6 @@
 [Unit]
 Description=GitOps Managed Rootless Podman Container - {{ container.name }}
+After=network-online.target
 
 [Container]
 Image={{ container.image }}
@@ -7,6 +8,11 @@ Image={{ container.image }}
 Exec={{ container.command }}
 {% endif %}
 AutoUpdate=registry
+
+# Set memory limit if provided (e.g., 8G, 1024M)
+{% if container.memory is defined %}
+Memory={{ container.memory }}
+{% endif %}
 
 {% for vol in container.volumes | default([]) %}
 Volume={{ vol }}

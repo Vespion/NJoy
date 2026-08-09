@@ -51,7 +51,7 @@ image:
     EXPOSE 24454
     LABEL org.opencontainers.image.title=Cobblemon
     LABEL org.opencontainers.image.description="Minecraft server package for All the Mons (With Cobblemon modifications)"
-    COPY +prepare-server-files/* .
+    COPY --dir +prepare-server-files/* .
     LABEL org.opencontainers.image.version="1.2.0"
     SAVE IMAGE --push ghcr.io/vespion/njoy/cobblemon:1.2.0
 
