@@ -1,6 +1,6 @@
 on:
   workflow_call:
-    args:
+    inputs:
       working_directory:
         required: true
         type: string
