@@ -19,8 +19,9 @@ PublishPort={{ port }}
 
 [Service]
 Restart=on-failure
-# Automatically calculate systemd's timeout by adding a 10-second buffer to Podman's timeout
-TimeoutStopSec={{ container_stop_timeout | int + 10 }}
+{% if container.stop_timeout is defined %}
+TimeoutStopSec={{ ontainer.stop_timeout | int + 10 }}
+{% endif %}
 ExecStartPost=/usr/bin/sudo /usr/sbin/ufw allow podman-{{ container.name }}
 ExecStopPost=-/usr/bin/sudo /usr/sbin/ufw delete allow podman-{{ container.name }}
 
