@@ -36,18 +36,3 @@
     user: "{{ item.name }}"
     key: "{{ lookup('file', '{}.pub'.format(item.name)) }}"
   loop: "{{ users }}"
-
-- name: Get current system users (excluding system accounts)
-  ansible.builtin.getent:
-    database: passwd
-
-- name: Remove unmanaged users
-  ansible.builtin.user:
-    name: "{{ item.key }}"
-    state: absent
-    remove: true
-  loop: "{{ getent_passwd | dict2items }}"
-  when:
-    - item.key not in (users | map(attribute='name') | list)
-    - item.value[2] | int >= 1000  # avoid deleting system accounts
-    - item.value[2] | int != 65534 # avoid deleting nobody account

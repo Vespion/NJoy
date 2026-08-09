@@ -21,6 +21,5 @@
           - "24454:24454/udp"
   roles:
     - admin
-    - gitops
     - podman
     - containers
