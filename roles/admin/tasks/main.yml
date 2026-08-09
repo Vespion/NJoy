@@ -50,3 +50,4 @@
   when:
     - item.key not in (users | map(attribute='name') | list)
     - item.value[2] | int >= 1000  # avoid deleting system accounts
+    - item.value[2] | int != 65534 # avoid deleting nobody account
