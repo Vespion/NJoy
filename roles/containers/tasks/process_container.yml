@@ -53,14 +53,3 @@
     dest: "/home/svc-{{ container.name }}/.config/containers/systemd/{{ container.name }}.container"
     mode: '0644'
   notify: Reload systemd daemon
-  # register: _quadlet
-
-# - name: Reload systemd daemon for svc-{{ container.name }}
-#   become: true
-#   become_user: "svc-{{ container.name }}"
-#   environment:
-#     XDG_RUNTIME_DIR: "/run/user/{{ _container_user.uid }}"
-#   ansible.builtin.systemd:
-#     scope: user
-#     daemon_reload: true
-#   when: _quadlet.changed # noqa: no-handler

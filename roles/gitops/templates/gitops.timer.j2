@@ -1,5 +1,6 @@
 [Unit]
-Description=Timer for {{ timer_description | default(timer_name) }}
+Description=Timer for GitOps Service
+After=network-online.target
 
 [Timer]
 # Calendar-based schedule (like cron)
