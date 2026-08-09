@@ -1,0 +1,32 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/ansible:2": {
+      "version": "2.1.2",
+      "resolved": "ghcr.io/devcontainers-extra/features/ansible@sha256:0b0c1e75e3c0fc9036d2d73277ded8d7c7589cb5971fc51549c38eaa0d5893ca",
+      "integrity": "sha256:0b0c1e75e3c0fc9036d2d73277ded8d7c7589cb5971fc51549c38eaa0d5893ca"
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "1.10.0",
+      "resolved": "ghcr.io/devcontainers/features/docker-outside-of-docker@sha256:c2c2cf829505ead8e4892c88c31b6594ae94a2bbb209e16e1fac456c1a3a624e",
+      "integrity": "sha256:c2c2cf829505ead8e4892c88c31b6594ae94a2bbb209e16e1fac456c1a3a624e"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "1.8.0",
+      "resolved": "ghcr.io/devcontainers/features/python@sha256:fbcad6955caeecc5ad3f7886baf652e25cba5225a6c4c2287c536de2e5607511",
+      "integrity": "sha256:fbcad6955caeecc5ad3f7886baf652e25cba5225a6c4c2287c536de2e5607511"
+    },
+    "ghcr.io/earthly/devcontainer-features/earthly:1": {
+      "version": "1.0.0",
+      "resolved": "ghcr.io/earthly/devcontainer-features/earthly@sha256:cb78fe86216468bb6884378a4a2a6a6a5c5230ed74ed3ebe008296c5a092d40d",
+      "integrity": "sha256:cb78fe86216468bb6884378a4a2a6a6a5c5230ed74ed3ebe008296c5a092d40d"
+    },
+    "ghcr.io/sliekens/devcontainer-features/ansible-lint:1": {
+      "version": "1.0.0",
+      "resolved": "ghcr.io/sliekens/devcontainer-features/ansible-lint@sha256:7561b04fa037692264a53709df5a4db23c33c428514971e17c1abcaafc2f5fa5",
+      "integrity": "sha256:7561b04fa037692264a53709df5a4db23c33c428514971e17c1abcaafc2f5fa5",
+      "dependsOn": [
+        "ghcr.io/devcontainers/features/python:1"
+      ]
+    }
+  }
+}

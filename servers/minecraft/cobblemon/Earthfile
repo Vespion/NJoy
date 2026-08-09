@@ -1,0 +1,67 @@
+VERSION 0.8
+
+IMPORT .. AS minecraft
+IMPORT ../../.. AS root
+
+download-additional-files:
+    FROM minecraft+modrinth-cli
+
+    COPY additional/datapacks.txt datapacks.txt
+    COPY additional/mods.txt mods.txt
+
+    DO minecraft+DOWNLOAD_MODRINTH_DATAPACK --manifest datapacks.txt --gameVersion 1.21.1 --loader neoforge --output ./datapacks
+    SAVE ARTIFACT --keep-ts ./datapacks/* /datapacks
+
+    DO minecraft+DOWNLOAD_FROM_MODRINTH --manifest mods.txt --gameVersion 1.21.1 --loader neoforge --output ./mods
+    SAVE ARTIFACT --keep-ts ./mods/* /mods/
+
+download-server-files:
+    FROM root+wget
+    RUN wget -O server.zip https://mediafilez.forgecdn.net/files/8572/602/ServerFiles-1.2.0.zip
+    RUN unzip server.zip -d /server
+    SAVE ARTIFACT --keep-ts /server/*
+
+prepare-server-files:
+    FROM niceos/openjdk21:21.0.12-niceos13
+    WORKDIR /server
+
+    COPY --dir +download-server-files/* .
+
+    ENV ATM10_INSTALL_ONLY true
+    RUN chmod +x startserver.sh
+
+    COPY +download-additional-files/mods mods
+    COPY +download-additional-files/datapacks datapacks   
+    
+    RUN ./startserver.sh
+    
+    RUN rm neoforge-*-installer.*
+    RUN rm *.bat
+    RUN rm startserver.*
+
+    COPY user_jvm_args.txt user_jvm_args.txt
+    COPY srv/server.properties server.properties
+    COPY srv/whitelist.json whitelist.json
+    COPY srv/ops.json ops.json
+
+    SAVE ARTIFACT --keep-ts ./*
+
+image:
+    FROM minecraft+image
+    EXPOSE 24454
+    LABEL org.opencontainers.image.title=Cobblemon
+    LABEL org.opencontainers.image.description="Minecraft server package for All the Mons (With Cobblemon modifications)"
+    COPY +prepare-server-files/* .
+    LABEL org.opencontainers.image.version="1.2.0"
+    SAVE IMAGE --push ghcr.io/vespion/njoy/cobblemon:1.2.0
+
+image-with-attestation-meta:
+    LOCALLY
+    WITH DOCKER --load=+image
+        RUN docker inspect --format='{{.Id}}' ghcr.io/vespion/njoy/cobblemon:1.2.0 > digest.txt
+    END
+    BUILD +image
+    SAVE ARTIFACT --keep-ts digest.txt
+    RUN echo "ghcr.io/vespion/njoy/cobblemon" > name.txt
+    SAVE ARTIFACT --keep-ts name.txt
+    

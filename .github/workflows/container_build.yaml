@@ -1,0 +1,49 @@
+on:
+  workflow_call:
+    args:
+      working_directory:
+        required: true
+        type: string
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Install earthbuild
+        uses: EarthBuild/actions-setup@e11e36ffea530484da8a4e5a4bd17d69de480786 #v2.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build Image
+        working-directory: ${{ inputs.working_directory }}
+        id: build-image
+        run: |
+          earthly --push -a +image-with-attestation-meta/* ./out/
+          echo "digest=$(cat ./out/digest.txt)" >> $GITHUB_OUTPUT
+          echo "name=$(cat ./out/name.txt)" >> $GITHUB_OUTPUT
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ steps.build-image.outputs.name }}
+          subject-digest: ${{ steps.build-image.outputs.digest }}
+      

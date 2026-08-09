@@ -1,0 +1,21 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - server/minecraft/cobblemon/*
+      - server/minecraft/entrypoint.sh
+      - server/minecraft/eula.txt
+
+name: Build and Attest (Cobblemon)
+
+jobs:
+  build-and-publish-cobblemon:
+    uses: ./.github/workflows/container_build.yaml
+    with:
+      working_directory: servers/minecraft/cobblemon
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write

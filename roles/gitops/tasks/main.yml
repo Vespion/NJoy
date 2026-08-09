@@ -1,0 +1,13 @@
+- name: Ensure git and ansible are installed for ansible-pull
+  ansible.builtin.package:
+    name:
+      - git
+      - ansible
+    state: present
+
+- name: Setup GitOps polling via cron
+  ansible.builtin.cron:
+    name: "Ansible GitOps Pull"
+    minute: "*/15"
+    job: "/usr/bin/ansible-pull -vvv --only-if-changed -U https://github.com/Vespion/NJoy.git -C main > /var/log/ansible-pull.log 2>&1"
+    user: root

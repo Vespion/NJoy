@@ -1,0 +1,49 @@
+VERSION 0.8
+
+IMPORT ../.. AS root
+
+mc-monitor:
+    FROM root+wget
+    RUN wget -O mc-monitor.tar.gz https://github.com/itzg/mc-monitor/releases/download/0.17.0/mc-monitor_0.17.0_linux_amd64.tar.gz
+    RUN tar -xzf mc-monitor.tar.gz
+    SAVE ARTIFACT --keep-ts mc-monitor
+
+modrinth-cli:
+    FROM python:3-slim
+    GIT CLONE https://github.com/Dxrmy/modrinth-cli.git /modrinth-cli
+
+DOWNLOAD_FROM_MODRINTH:
+    FUNCTION
+    ARG --required manifest
+    ARG --required gameVersion
+    ARG --required loader
+    ARG --required output
+    RUN python /modrinth-cli/modrinth.py install ${manifest} -v ${gameVersion} -l ${loader} -d ${output} -R
+
+DOWNLOAD_MODRINTH_DATAPACK:
+    FUNCTION
+    ARG --required manifest
+    ARG --required gameVersion
+    ARG --required loader
+    ARG --required output
+    DO +DOWNLOAD_FROM_MODRINTH --manifest ${manifest} --gameVersion ${gameVersion} --loader ${loader} --output ${output}
+    WORKDIR /datapacks
+    RUN for f in */*.jar; do mv -- "$f" "${f%.jar}.zip"; done
+    WORKDIR /
+
+image:
+    FROM niceos/openjdk21:21.0.12-niceos13
+    LABEL org.opencontainers.image.source=https://github.com/Vespion/NJoy
+    LABEL org.opencontainers.image.vendor=Vespion
+    LABEL org.opencontainers.image.authors="Vespion, MossyMeadows"
+    WORKDIR /srv/minecraft
+    EXPOSE 25565
+    COPY eula.txt eula.txt
+
+    COPY entrypoint.sh entrypoint.sh
+    RUN chmod +x entrypoint.sh
+    ENTRYPOINT ["/srv/minecraft/entrypoint.sh"]
+
+    COPY +mc-monitor/* /usr/local/bin/mc-monitor
+    HEALTHCHECK --start-period=2m --retries=5 --start-interval=10s --interval=30s CMD mc-monitor status
+    

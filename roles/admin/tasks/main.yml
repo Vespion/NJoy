@@ -1,0 +1,56 @@
+- name: Ensure utility packages are installed
+  ansible.builtin.package:
+    name:
+      - doas
+      - firewalld
+      - firewalld-openrc
+    state: present
+
+- name: Enable and start firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Create gamemasters group
+  ansible.builtin.group:
+    name: gamemasters
+    state: present
+  register: group_gamemasters
+
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    group: "{{ group_gamemasters.name }}"
+    groups: "{{ item.groups }}"
+    state: present
+    create_home: true
+    shell: /bin/ash
+  loop: "{{ users }}"
+- name: Add keys to users
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ lookup('file', '{}.pub'.format(item.name)) }}"
+  loop: "{{ users }}"
+
+# - name: Ensure subuid mapping exists for users
+#   ansible.builtin.lineinfile:
+#     path: /etc/subuid
+#     regexp: '^{{ item.name }}:'
+#     line: '{{ item.name }}:100000:65536'
+#     owner: root
+#     group: root
+#     mode: '644'
+#     create: true
+#   loop: "{{ users }}"
+
+# - name: "Ensure subgid mapping exists for {{ item.name }}"
+#   ansible.builtin.lineinfile:
+#     path: /etc/subgid
+#     regexp: '^{{ item.name }}:'
+#     line: '{{ item.name }}:100000:65536'
+#     owner: root
+#     group: root
+#     mode: '644'
+#     create: true
+#   loop: "{{ users }}"

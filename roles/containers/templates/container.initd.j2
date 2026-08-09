@@ -1,0 +1,90 @@
+#!/sbin/openrc-run
+
+name="{{ item.name }}"
+description="GitOps Managed Rootless Podman Container - {{ item.name }}"
+run_user="{{ user_podsvc.name }}"
+pidfile="/home/${run_user}/${name}.pid"
+
+command="/usr/bin/podman"
+
+# Base run arguments
+command_args="run -d --rm --name ${name} --conmon-pidfile ${pidfile}"
+
+# Dynamically append Volume bindings
+{% if item.volumes is defined %}
+{% for vol in item.volumes %}
+command_args="${command_args} -v {{ vol }}"
+{% endfor %}
+{% endif %}
+
+# Dynamically append Port bindings
+{% if item.ports is defined %}
+{% for port in item.ports %}
+command_args="${command_args} -p {{ port }}"
+{% endfor %}
+{% endif %}
+
+# Append the image and optional execution command
+command_args="${command_args} {{ item.image }} {% if item.command is defined %}{{ item.command }}{% endif %}"
+
+command_user="${run_user}:${run_user}"
+command_env="XDG_RUNTIME_DIR=/tmp/${run_user}-runtime"
+
+depend() {
+    need net cgroups
+}
+
+start_pre() {
+    checkpath -d -m 0700 -o ${run_user}:${run_user} /tmp/${run_user}-runtime
+}
+
+start() {
+    ebegin "Starting ${name}"
+    
+    # 1. Start the container via OpenRC
+    if /sbin/start-stop-daemon --start \
+        --pidfile "${pidfile}" \
+        --user "${command_user}" \
+        --env "${command_env}" \
+        --exec "${command}" \
+        -- ${command_args}; then
+        
+        # 2. Automatically open firewall ports if defined
+        {% if item.ports is defined %}
+        {% for port_mapping in item.ports %}
+        # Extract the host port (e.g., '8080:80' -> '8080', or '8080' -> '8080')
+        host_port=$(echo "{{ port_mapping }}" | awk -F':' '{print $(NF-1)}')
+        if [ -n "${host_port}" ]; then
+            iptables -I INPUT -p tcp --dport "${host_port}" -j ACCEPT -m comment --comment "Managed by OpenRC for ${name}"
+        fi
+        {% endfor %}
+        {% endif %}
+        eend 0
+    else
+        eend 1
+    fi
+}
+
+stop() {
+    ebegin "Stopping ${name} (Timeout: 20s)"
+    
+    # 1. Stop and remove the container safely
+    XDG_RUNTIME_DIR=/tmp/${run_user}-runtime su - ${run_user} -c "podman stop -t 20 ${name} || podman rm -f ${name}"
+    
+    # 2. Automatically clean up firewall ports if defined
+    {% if item.ports is defined %}
+    {% for port_mapping in item.ports %}
+    host_port=$(echo "{{ port_mapping }}" | awk -F':' '{print $(NF-1)}')
+    if [ -n "${host_port}" ]; then
+        # Remove all matching rules for this port to prevent rule bloat
+        while iptables -D INPUT -p tcp --dport "${host_port}" -j ACCEPT -m comment --comment "Managed by OpenRC for ${name}" 2>/dev/null; do
+            true
+        done
+    fi
+    {% endfor %}
+    {% endif %}
+    
+    # Clean up the pidfile if left behind
+    rm -f "${pidfile}"
+    eend $?
+}
