@@ -1,19 +1,17 @@
----
-- name: Create dedicated system user for {{ container.name }}
+- name: Create dedicated user for container service
   ansible.builtin.user:
     name: "svc-{{ container.name }}"
-    group: containers
-    system: true
+    system: false
     create_home: true
-    shell: /bin/bash
+    shell: /sbin/nologin
   register: _container_user
 
-- name: Enable systemd linger for svc-{{ container.name }}
+- name: Enable systemd linger for container service
   ansible.builtin.command: "loginctl enable-linger svc-{{ container.name }}"
   args:
     creates: "/var/lib/systemd/linger/svc-{{ container.name }}"
 
-- name: Deploy UFW Application Profile for {{ container.name }}
+- name: Deploy UFW Application Profile for container service
   ansible.builtin.template:
     src: ufw-app.j2
     dest: "/etc/ufw/applications.d/podman-{{ container.name }}"
@@ -21,7 +19,27 @@
   when: container.ports is defined and container.ports | length > 0
   notify: Reload ufw
 
-- name: Ensure Quadlet directory exists for svc-{{ container.name }}
+- name: Deploy systemd management wrapper script for container service
+  ansible.builtin.template:
+    src: manage-service.sh.j2
+    dest: "/usr/local/bin/manage-{{ container.name }}"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Allow gamemasters to run the management script as container service user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/gamemasters-{{ container.name }}"
+    content: >
+      %gamemasters ALL=(svc-{{ container.name }}) NOPASSWD:
+       /usr/local/bin/manage-{{ container.name }} start,
+       /usr/local/bin/manage-{{ container.name }} stop,
+       /usr/local/bin/manage-{{ container.name }} restart,
+       /usr/local/bin/manage-{{ container.name }} status
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Ensure Quadlet directory exists for container service
   become: true
   become_user: "svc-{{ container.name }}"
   ansible.builtin.file:
@@ -29,11 +47,10 @@
     state: directory
     mode: '0755'
 
-- name: Ensure named Podman volumes exist for svc-{{ container.name }}
+- name: Ensure named Podman volumes exist for container service
   become: true
   become_user: "svc-{{ container.name }}"
   environment:
-    # Dynamically inject the correct UID for this specific container's user
     XDG_RUNTIME_DIR: "/run/user/{{ _container_user.uid }}"
   containers.podman.podman_volume:
     state: present
@@ -45,7 +62,7 @@
   loop_control:
     label: "{{ vol_name }}"
 
-- name: Deploy Podman Quadlet for {{ container.name }}
+- name: Deploy Podman Quadlet for container service
   become: true
   become_user: "svc-{{ container.name }}"
   ansible.builtin.template:
@@ -54,7 +71,7 @@
     mode: '0644'
   register: _quadlet
 
-- name: Reload systemd daemon for svc-{{ container.name }}
+- name: Reload systemd daemon for container service
   become: true
   become_user: "svc-{{ container.name }}"
   environment:
