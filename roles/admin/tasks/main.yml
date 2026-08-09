@@ -8,7 +8,7 @@
   community.general.ufw:
     state: enabled
     policy: deny
-    direction: in
+    direction: incoming
     logging: 'medium'
 
 - name: Allow SSH through UFW
