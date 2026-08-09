@@ -20,7 +20,7 @@ PublishPort={{ port }}
 [Service]
 Restart=on-failure
 {% if container.stop_timeout is defined %}
-TimeoutStopSec={{ ontainer.stop_timeout | int + 10 }}
+TimeoutStopSec={{ container.stop_timeout | int + 10 }}
 {% endif %}
 ExecStartPost=/usr/bin/sudo /usr/sbin/ufw allow podman-{{ container.name }}
 ExecStopPost=-/usr/bin/sudo /usr/sbin/ufw delete allow podman-{{ container.name }}
