@@ -4,4 +4,4 @@
   loop_control:
     # Use 'container' instead of 'item' so we don't conflict with nested loops
     loop_var: container
-  label: "{{ container.name }}"
+    label: "{{ container.name }}"

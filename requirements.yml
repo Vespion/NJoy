@@ -1,3 +1,5 @@
+# THIS WILL NOT BE AUTO-UPDATED BY ANSIBLE-PULL!
+# Ensure you install these manually on the host before running ansible-pull via ansible-galaxy
 collections:
   - name: community.general
   - name: ansible.posix
