@@ -41,7 +41,6 @@ start_pre() {
 start() {
     ebegin "Starting ${name}"
     
-    # 1. Start the container via OpenRC
     if /sbin/start-stop-daemon --start \
         --pidfile "${pidfile}" \
         --user "${command_user}" \
@@ -49,15 +48,20 @@ start() {
         --exec "${command}" \
         -- ${command_args}; then
         
-        # 2. Automatically open firewall ports if defined
-        {% if item.ports is defined %}
-        {% for port_mapping in item.ports %}
-        # Extract the host port (e.g., '8080:80' -> '8080', or '8080' -> '8080')
-        host_port=$(echo "{{ port_mapping }}" | awk -F':' '{print $(NF-1)}')
-        if [ -n "${host_port}" ]; then
-            iptables -I INPUT -p tcp --dport "${host_port}" -j ACCEPT -m comment --comment "Managed by OpenRC for ${name}"
-        fi
+        {% if item.ports is defined and item.ports|length > 0 %}
+        # Add firewalld permanent rules and reload runtime state
+        {% for p in item.ports %}
+        {% set parts = p.split('/') %}
+        {% set proto = parts[1] if parts|length > 1 else 'tcp' %}
+        {% set ip_port_parts = parts[0].split(':') %}
+        {% if ip_port_parts|length == 3 %}
+            {% set host_port = ip_port_parts[1] %}
+        {% else %}
+            {% set host_port = ip_port_parts[0] %}
+        {% endif %}
+        firewall-cmd --zone=public --add-port={{ host_port }}/{{ proto }} --permanent >/dev/null 2>&1
         {% endfor %}
+        firewall-cmd --reload >/dev/null 2>&1
         {% endif %}
         eend 0
     else
@@ -68,23 +72,24 @@ start() {
 stop() {
     ebegin "Stopping ${name} (Timeout: 20s)"
     
-    # 1. Stop and remove the container safely
     XDG_RUNTIME_DIR=/tmp/${run_user}-runtime su - ${run_user} -c "podman stop -t 20 ${name} || podman rm -f ${name}"
     
-    # 2. Automatically clean up firewall ports if defined
-    {% if item.ports is defined %}
-    {% for port_mapping in item.ports %}
-    host_port=$(echo "{{ port_mapping }}" | awk -F':' '{print $(NF-1)}')
-    if [ -n "${host_port}" ]; then
-        # Remove all matching rules for this port to prevent rule bloat
-        while iptables -D INPUT -p tcp --dport "${host_port}" -j ACCEPT -m comment --comment "Managed by OpenRC for ${name}" 2>/dev/null; do
-            true
-        done
-    fi
+    {% if item.ports is defined and item.ports|length > 0 %}
+    # Remove firewalld permanent rules and reload runtime state
+    {% for p in item.ports %}
+    {% set parts = p.split('/') %}
+    {% set proto = parts[1] if parts|length > 1 else 'tcp' %}
+    {% set ip_port_parts = parts[0].split(':') %}
+    {% if ip_port_parts|length == 3 %}
+        {% set host_port = ip_port_parts[1] %}
+    {% else %}
+        {% set host_port = ip_port_parts[0] %}
+    {% endif %}
+    firewall-cmd --zone=public --remove-port={{ host_port }}/{{ proto }} --permanent >/dev/null 2>&1
     {% endfor %}
+    firewall-cmd --reload >/dev/null 2>&1
     {% endif %}
     
-    # Clean up the pidfile if left behind
     rm -f "${pidfile}"
     eend $?
 }

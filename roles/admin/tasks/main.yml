@@ -12,6 +12,13 @@
     state: started
     enabled: true
 
+- name: Open SSH
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    state: enabled
+    immediate: true
+
 - name: Create gamemasters group
   ansible.builtin.group:
     name: gamemasters

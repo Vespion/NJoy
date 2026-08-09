@@ -1,0 +1,6 @@
+{
+    "ansible.lightspeed.enabled": false,
+    "files.associations": {
+        "*.initd.j2": "jinja-shell"
+    }
+}

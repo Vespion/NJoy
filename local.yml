@@ -10,7 +10,7 @@
         
     podman_containers:
       - name: cobblemon
-        image: njoy/cobblemon:1.2.0
+        image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:
           # A named volume (Ansible will create this automatically)
           - cobblemon-world:/srv/minecraft/world
