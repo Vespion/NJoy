@@ -8,7 +8,7 @@
   ansible.builtin.user:
     name: "{{ item.name }}"
     group: "{{ group_gamemasters.name }}"
-    groups: "{{ item.groups }}"
+    groups: "{{ item.groups | default([]) }}"
     state: present
     create_home: true
     shell: /bin/ash
