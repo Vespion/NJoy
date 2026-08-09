@@ -1,0 +1,8 @@
+- name: Reload ufw
+  become: true
+  ansible.builtin.command: ufw app update all
+  changed_when: false
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true

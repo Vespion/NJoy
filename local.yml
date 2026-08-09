@@ -7,18 +7,19 @@
       - name: alice
         groups:
           - wheel
+      - name: link
         
     podman_containers:
       - name: cobblemon
+        stop_timeout: 300
         image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:
-          # A named volume (Ansible will create this automatically)
           - cobblemon-world:/srv/minecraft/world
         ports:
           - "25565:25565/tcp"
           - "24454:24454/udp"
   roles:
     - admin
-    # - gitops
+    - gitops
     - podman
     - containers

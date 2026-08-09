@@ -39,7 +39,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         id: build-image
         run: |
-          earthly --push -a +image-with-attestation-meta/* ./out/
+          earth --push -a +image-with-attestation-meta/* ./out/
           echo "digest=$(cat ./out/digest.txt)" >> $GITHUB_OUTPUT
           echo "name=$(cat ./out/name.txt)" >> $GITHUB_OUTPUT
 

@@ -1,0 +1,33 @@
+[Unit]
+Description=GitOps Managed Rootless Podman Container - {{ container.name }}
+
+[Container]
+Image={{ container.image }}
+{% if container.command is defined %}
+Exec={{ container.command }}
+{% endif %}
+AutoUpdate=registry
+
+{% for vol in container.volumes | default([]) %}
+Volume={{ vol }}
+{% endfor %}
+
+{% for port in container.ports | default([]) %}
+PublishPort={{ port }}
+{% endfor %}
+
+# Set Podman's stop timeout (defaults to 30 seconds if not specified)
+{% set container_stop_timeout = container.stop_timeout | default(30) %}
+StopTimeout={{ container_stop_timeout }}
+
+[Service]
+# Automatically calculate systemd's timeout by adding a 10-second buffer to Podman's timeout
+TimeoutStopSec={{ container_stop_timeout | int + 10 }}
+{% if container.ports is defined and container.ports|length > 0 %}
+# systemd natively drops privileges to svc-<name>, so we use sudo to execute the firewall rule
+ExecStartPost=/usr/bin/sudo /usr/sbin/ufw allow podman-{{ container.name }}
+ExecStopPost=-/usr/bin/sudo /usr/sbin/ufw delete allow podman-{{ container.name }}
+{% endif %}
+
+[Install]
+WantedBy=default.target

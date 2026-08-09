@@ -1,24 +1,3 @@
-- name: Ensure utility packages are installed
-  ansible.builtin.package:
-    name:
-      - doas
-      - firewalld
-      - firewalld-openrc
-    state: present
-
-- name: Enable and start firewalld
-  ansible.builtin.service:
-    name: firewalld
-    state: started
-    enabled: true
-
-- name: Open SSH
-  ansible.posix.firewalld:
-    service: ssh
-    permanent: true
-    state: enabled
-    immediate: true
-
 - name: Create gamemasters group
   ansible.builtin.group:
     name: gamemasters

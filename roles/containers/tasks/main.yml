@@ -1,34 +1,7 @@
-- name: Ensure XDG_RUNTIME_DIR exists for podmanuser
-  ansible.builtin.file:
-    path: "/tmp/{{ user_podsvc.name }}-runtime"
-    state: directory
-    owner: "{{ user_podsvc.name }}"
-    group: "{{ user_podsvc.name }}"
-    mode: '0700'
-
-- name: Ensure named Podman volumes exist (Creation only)
-  become: true
-  become_method: community.general.doas
-  become_user: "{{ user_podsvc.name }}"
-  environment:
-    # Necessary so the module can locate the rootless environment
-    XDG_RUNTIME_DIR: "/tmp/{{ user_podsvc.name }}-runtime"
-  containers.podman.podman_volume:
-    # 'present' ensures it is created if missing, but NEVER destroys it
-    # (use 'absent' to destroy, which we are specifically avoiding here)
-    state: present
-    name: "{{ vol_name }}"
-  vars:
-    vol_name: "{{ item.1.split(':')[0] }}"
-  # Skip host bind mounts (paths starting with '/' or '.')
-  when: not vol_name.startswith('/') and not vol_name.startswith('.')
-  loop: "{{ podman_containers | subelements('volumes', skip_missing=True) }}"
-
-- name: Deploy OpenRC init scripts for containers
-  ansible.builtin.template:
-    src: container.initd.j2
-    dest: "/etc/init.d/{{ item.name }}"
-    owner: root
-    group: root
-    mode: '0755'
+- name: Process and deploy each container securely
+  ansible.builtin.include_tasks: process_container.yml
   loop: "{{ podman_containers }}"
+  loop_control:
+    # Use 'container' instead of 'item' so we don't conflict with nested loops
+    loop_var: container
+  label: "{{ container.name }}"

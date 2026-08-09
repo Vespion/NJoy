@@ -1,0 +1,16 @@
+[podman-{{ container.name }}]
+title=Podman Container {{ container.name }}
+description=GitOps managed ports for {{ container.name }}
+{% set app_ports = [] %}
+{% for p in container.ports %}
+{% set parts = p.split('/') %}
+{% set proto = parts[1] if parts|length > 1 else 'tcp' %}
+{% set ip_port_parts = parts[0].split(':') %}
+{% if ip_port_parts|length == 3 %}
+{% set host_port = ip_port_parts[1] %}
+{% else %}
+{% set host_port = ip_port_parts[0] %}
+{% endif %}
+{% set _ = app_ports.append(host_port ~ '/' ~ proto) %}
+{% endfor %}
+ports={{ app_ports | join('|') }}

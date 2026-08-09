@@ -2,77 +2,18 @@
   ansible.builtin.package:
     name:
       - podman
-      - shadow-subids # Provides newuidmap/newgidmap (critical for rootless)
-      - slirp4netns   # Rootless networking
-      - cni-plugins
-      - fuse-overlayfs
+      - ufw
     state: present
 
-- name: Ensure OpenRC uses unified cgroup mode (cgroups v2)
-  ansible.builtin.lineinfile:
-    path: /etc/rc.conf
-    # The regex matches the line even if it is currently commented out with a '#'
-    regexp: '^#?rc_cgroup_mode=.*'
-    line: 'rc_cgroup_mode="unified"'
-
-- name: Ensure cgroups service is enabled and started
-  ansible.builtin.service:
-    name: cgroups
-    state: started
-    enabled: true
-
-- name: Load tun kernel module (for slirp4netns)
-  community.general.modprobe:
-    name: tun
+- name: Create shared containers group for UFW permissions
+  ansible.builtin.group:
+    name: containers
     state: present
-    persistent: present
 
-- name: Persist tun module on boot
-  ansible.builtin.lineinfile:
-    path: /etc/modules
-    line: tun
-    owner: root
-    group: root
-    mode: '0755'
-    create: true
-
-- name: Create dedicated user for rootless Podman
-  ansible.builtin.user:
-    name: podsvc
-    state: present
-    create_home: true
-    shell: /bin/ash
-  register: user_podsvc
-
-- name: Ensure subuid mapping exists for rootless user
-  ansible.builtin.lineinfile:
-    path: /etc/subuid
-    regexp: '^{{ user_podsvc.name }}:'
-    line: '{{ user_podsvc.name }}:100000:65536'
-    owner: root
-    group: root
-    mode: '644'
-    create: true
-
-- name: Ensure subgid mapping exists for rootless user
-  ansible.builtin.lineinfile:
-    path: /etc/subgid
-    regexp: '^{{ user_podsvc.name }}:'
-    line: '{{ user_podsvc.name }}:100000:65536'
-    owner: root
-    group: root
-    mode: '644'
-    create: true
-
-- name: Configure doas to allow user switching to podsvc
-  ansible.builtin.lineinfile:
-    path: /etc/doas.d/30-podman.conf
-    # 'nopass' prevents the authentication failure
-    # 'keepenv' ensures HOME and XDG_RUNTIME_DIR are passed through
-    # 'root' is the user executing the playbook/cron
-    line: "permit nopass keepenv root as {{ user_podsvc.name }}"
-    create: true
-    mode: '0400'
-    owner: root
-    # doas strictly requires successful syntax validation
-    validate: 'doas -C %s'
+- name: Allow containers group to manage UFW podman rules
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/containers-ufw
+    # Allows any user in the 'containers' group to add/remove their specific profile
+    content: "%containers ALL=(root) NOPASSWD: /usr/sbin/ufw allow podman-*, /usr/sbin/ufw delete allow podman-*\n"
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
