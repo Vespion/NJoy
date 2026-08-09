@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Install earthbuild
-        uses: EarthBuild/actions-setup@e11e36ffea530484da8a4e5a4bd17d69de480786 #v2.0.0
+        uses: EarthBuild/actions-setup@f4d20223e70dbb43b5fc08c4d857ab9cf0dbf3ae # v2.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
