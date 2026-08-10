@@ -4,3 +4,12 @@
       - podman
       - ufw
     state: present
+- name: Ensure subordinate UID range exists for automatic namespaces
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    line: "containers:1000000:655360"
+    create: true
+    mode: '0644'
+  loop:
+    - /etc/subuid
+    - /etc/subgid
