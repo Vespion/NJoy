@@ -10,7 +10,7 @@ UserNS=auto
 StopTimeout={{ container.stop_timeout }}
 {% endif %}
 {% if container.memory is defined %}
-Memory={{ container.memory }}
+#Memory={{ container.memory }}
 {% endif %}
 {% for vol in container.volumes | default([]) %}
 Volume={{ vol }}:Z
