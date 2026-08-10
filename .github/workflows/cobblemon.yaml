@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - server/minecraft/cobblemon/*
+      - server/minecraft/cobblemon/**
       - server/minecraft/entrypoint.sh
       - server/minecraft/eula.txt
 
