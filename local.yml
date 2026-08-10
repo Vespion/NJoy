@@ -14,7 +14,7 @@
         stop_timeout: 300
         memory:
           min: "9G"
-          max: "9G"
+          max: "10G"
         image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:
           - cobblemon-world:/srv/minecraft/world
