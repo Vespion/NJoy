@@ -12,8 +12,9 @@
     podman_containers:
       - name: cobblemon
         stop_timeout: 300
-        memory: "8G"
-        sysMemory: "9G"
+        memory:
+          min: "9G"
+          max: "9G"
         image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:
           - cobblemon-world:/srv/minecraft/world

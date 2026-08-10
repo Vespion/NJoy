@@ -9,8 +9,11 @@ UserNS=auto
 {% if container.stop_timeout is defined %}
 StopTimeout={{ container.stop_timeout }}
 {% endif %}
-{% if container.memory is defined %}
-PodmanArgs=--memory={{ container.memory }}
+{% if container.memory.max is defined %}
+PodmanArgs=--memory={{ container.memory.max }}
+{% endif %}
+{% if container.memory.min is defined %}
+PodmanArgs=--memory-reservation={{ container.memory.min }}
 {% endif %}
 {% for vol in container.volumes | default([]) %}
 Volume={{ vol }}:Z
@@ -26,8 +29,11 @@ TimeoutStopSec={{ container.stop_timeout | int + 10 }}
 {% endif %}
 ExecStartPost=/usr/sbin/ufw route allow podman-{{ container.name }}
 ExecStopPost=-/usr/sbin/ufw delete allow podman-{{ container.name }}
-{% if container.sysMemory is defined %}
-MemoryMin={{ container.sysMemory }}
+{% if container.memory.min is defined %}
+MemoryMin={{ container.memory.min }}
+{% endif %}
+{% if container.memory.max is defined %}
+MemoryHigh={{ container.memory.max }}
 {% endif %}
 
 [Install]
