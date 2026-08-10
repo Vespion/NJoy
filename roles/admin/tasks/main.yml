@@ -29,7 +29,6 @@
     groups: "{{ item.groups | default([]) }}"
     state: present
     create_home: true
-    shell: /bin/ash
   loop: "{{ users }}"
 - name: Add keys to users
   ansible.posix.authorized_key:

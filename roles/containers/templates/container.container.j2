@@ -4,6 +4,8 @@ After=network-online.target
 
 [Container]
 Image={{ container.image }}
+# Dynamically isolates the container into a unique, unprivileged namespace
+UserNS=auto
 {% if container.stop_timeout is defined %}
 StopTimeout={{ container.stop_timeout }}
 {% endif %}
@@ -11,7 +13,7 @@ StopTimeout={{ container.stop_timeout }}
 Memory={{ container.memory }}
 {% endif %}
 {% for vol in container.volumes | default([]) %}
-Volume={{ vol }}
+Volume={{ vol }}:Z
 {% endfor %}
 {% for port in container.ports | default([]) %}
 PublishPort={{ port }}
@@ -22,8 +24,8 @@ Restart=on-failure
 {% if container.stop_timeout is defined %}
 TimeoutStopSec={{ container.stop_timeout | int + 10 }}
 {% endif %}
-ExecStartPost=/usr/bin/sudo /usr/sbin/ufw allow podman-{{ container.name }}
-ExecStopPost=-/usr/bin/sudo /usr/sbin/ufw delete allow podman-{{ container.name }}
+ExecStartPost=/usr/sbin/ufw allow podman-{{ container.name }}
+ExecStopPost=-/usr/sbin/ufw delete allow podman-{{ container.name }}
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

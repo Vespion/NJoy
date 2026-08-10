@@ -4,16 +4,3 @@
       - podman
       - ufw
     state: present
-
-- name: Create shared containers group for UFW permissions
-  ansible.builtin.group:
-    name: containers
-    state: present
-
-- name: Allow containers group to manage UFW podman rules
-  ansible.builtin.copy:
-    dest: /etc/sudoers.d/containers-ufw
-    # Allows any user in the 'containers' group to add/remove their specific profile
-    content: "%containers ALL=(root) NOPASSWD: /usr/sbin/ufw allow podman-*, /usr/sbin/ufw delete allow podman-*\n"
-    mode: '0440'
-    validate: /usr/sbin/visudo -cf %s

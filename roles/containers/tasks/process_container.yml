@@ -1,21 +1,3 @@
-- name: Create dedicated user for container service
-  ansible.builtin.user:
-    name: "svc-{{ container.name }}"
-    system: false
-    create_home: true
-    shell: /sbin/nologin
-  register: _container_user
-
-- name: Enable systemd linger for container service
-  ansible.builtin.command: "loginctl enable-linger svc-{{ container.name }}"
-  args:
-    creates: "/var/lib/systemd/linger/svc-{{ container.name }}"
-
-- name: Ensure user systemd daemon is actively running
-  ansible.builtin.systemd:
-    name: "user@{{ _container_user.uid }}.service"
-    state: started
-
 - name: Deploy UFW Application Profile for container service
   ansible.builtin.template:
     src: ufw-app.j2
@@ -24,59 +6,28 @@
   when: container.ports is defined and container.ports | length > 0
   notify: Reload ufw
 
-- name: Deploy systemd management wrapper script for container service
-  ansible.builtin.template:
-    src: manage-service.sh.j2
-    dest: "/usr/local/bin/manage-{{ container.name }}"
-    mode: '0755'
-    owner: root
-    group: root
-
-- name: Allow gamemasters to run the management script as container service user
-  ansible.builtin.template:
-    src: managescript.sudoers.j2
-    dest: "/etc/sudoers.d/gamemasters-{{ container.name }}"
-    mode: '0440'
-    validate: /usr/sbin/visudo -cf %s
-
-- name: Ensure Quadlet directory exists for container service
-  become: true
-  become_user: "svc-{{ container.name }}"
-  ansible.builtin.file:
-    path: "/home/svc-{{ container.name }}/.config/containers/systemd"
-    state: directory
-    mode: '0755'
-
-- name: Ensure named Podman volumes exist for container service
-  become: true
-  become_user: "svc-{{ container.name }}"
-  environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ _container_user.uid }}"
+- name: Ensure named Podman volumes exist
   containers.podman.podman_volume:
     state: present
     name: "{{ vol_name }}"
   vars:
     vol_name: "{{ item.split(':')[0] }}"
+  # Skips bind mounts (paths starting with / or .)
   when: not vol_name.startswith('/') and not vol_name.startswith('.')
   loop: "{{ container.volumes | default([]) }}"
   loop_control:
     label: "{{ vol_name }}"
 
-- name: Deploy Podman Quadlet for container service
-  become: true
-  become_user: "svc-{{ container.name }}"
+- name: Deploy System-level Podman Quadlet
   ansible.builtin.template:
     src: container.container.j2
-    dest: "/home/svc-{{ container.name }}/.config/containers/systemd/{{ container.name }}.container"
+    dest: "/etc/containers/systemd/{{ container.name }}.container"
     mode: '0644'
-  register: _quadlet
+  notify: Reload systemd daemon
 
-- name: Reload systemd daemon for container service
-  become: true
-  become_user: "svc-{{ container.name }}"
-  environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ _container_user.uid }}"
-  ansible.builtin.systemd:
-    scope: user
-    daemon_reload: true
-  when: _quadlet.changed # noqa: no-handler
+- name: Allow gamemasters to toggle system game servers
+  ansible.builtin.template:
+    src: container.sudoers.j2
+    dest: "/etc/sudoers.d/{{ container.name }}"
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
