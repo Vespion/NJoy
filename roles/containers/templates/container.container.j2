@@ -4,7 +4,8 @@ After=network-online.target
 
 [Container]
 Image={{ container.image }}
-AutoUpdate=registry # Checks if the registry image digest differs from the local image digest
+# Checks if the registry image digest differs from the local image digest
+AutoUpdate=registry
 # Dynamically isolates the container into a unique, unprivileged namespace
 UserNS=auto
 {% if container.stop_timeout is defined %}
