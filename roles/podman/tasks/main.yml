@@ -13,3 +13,8 @@
   loop:
     - /etc/subuid
     - /etc/subgid
+- name: Activate auto-update timer
+  ansible.builtin.systemd:
+    name: podman-auto-update.timer
+    enabled: true
+    state: started
