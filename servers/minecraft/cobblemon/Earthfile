@@ -41,6 +41,9 @@ prepare-server-files:
 
     COPY user_jvm_args.txt user_jvm_args.txt
     COPY srv/server.properties server.properties
+
+    COPY --dir config/* config/
+
     COPY srv/whitelist.json whitelist.json
     COPY srv/ops.json ops.json
 
