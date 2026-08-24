@@ -47,7 +47,7 @@ jobs:
       
       - name: Get Image Digest
         id: get-image-digest
-        run: echo "digest=$(docker inspect --format='{{.Id}}' ${{ inputs.produced_tag }})" >> $GITHUB_OUTPUT
+        run: echo "digest=$(docker manifest inspect ${{ inputs.produced_tag }} -v | jq -r '.Descriptor.digest'))" >> $GITHUB_OUTPUT
       
       - name: Failure diagnostics
         if: failure()
