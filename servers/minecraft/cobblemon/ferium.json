@@ -91,6 +91,12 @@
           }
         },
         {
+          "name": "Multi-Piston",
+          "identifier": {
+            "CurseForgeProject": 303278
+          }
+        },
+        {
           "name": "Project Resonance for MineColonies",
           "identifier": {
             "CurseForgeProject": 1415077
