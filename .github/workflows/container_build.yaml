@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      produced_tag:
+        required: true
+        type: string
       working_directory:
         required: true
         type: string
@@ -38,10 +41,13 @@ jobs:
       - name: Build Image
         working-directory: ${{ inputs.working_directory }}
         id: build-image
-        run: |
-          earth --push --ci -a +image-with-attestation-meta/* ./out/
-          echo "digest=$(cat ./out/digest.txt)" >> $GITHUB_OUTPUT
-          echo "name=$(cat ./out/name.txt)" >> $GITHUB_OUTPUT
+        env:
+          FORCE_COLOR: 1
+        run: earth --push --ci +image --tag ${{ inputs.working_directory }}
+      
+      - name: Get Image Digest
+        id: get-image-digest
+        run: echo "digest=$(docker inspect --format='{{.Id}}' ghcr.io/vespion/njoy/cobblemon:1.2.0)" >> $GITHUB_OUTPUT
       
       - name: Failure diagnostics
         if: ${{ failure() }}
@@ -50,6 +56,6 @@ jobs:
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
-          subject-name: ${{ steps.build-image.outputs.name }}
+          subject-name: ${{ inputs.working_directory }}
           subject-digest: ${{ steps.build-image.outputs.digest }}
       

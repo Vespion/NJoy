@@ -61,15 +61,6 @@ image:
     LABEL org.opencontainers.image.description="Minecraft server package for All the Mons (With Cobblemon modifications)"
     COPY --dir +prepare-server-files/* .
     LABEL org.opencontainers.image.version="1.2.0"
-    SAVE IMAGE --push ghcr.io/vespion/njoy/cobblemon:1.2.0
-
-image-with-attestation-meta:
-    LOCALLY
-    WITH DOCKER --load=+image
-        RUN docker inspect --format='{{.Id}}' ghcr.io/vespion/njoy/cobblemon:1.2.0 > digest.txt
-    END
-    BUILD +image
-    SAVE ARTIFACT --keep-ts digest.txt
-    RUN echo "ghcr.io/vespion/njoy/cobblemon" > name.txt
-    SAVE ARTIFACT --keep-ts name.txt
+    ARG --required tag
+    SAVE IMAGE --push ${tag}
     
