@@ -43,7 +43,7 @@ jobs:
         id: build-image
         env:
           FORCE_COLOR: 1
-        run: earth --push --ci +image --tag ${{ inputs.working_directory }}
+        run: earth --push --ci +image --tag ${{ inputs.produced_tag }}
       
       - name: Get Image Digest
         id: get-image-digest
@@ -56,6 +56,6 @@ jobs:
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
-          subject-name: ${{ inputs.working_directory }}
+          subject-name: ${{ inputs.produced_tag }}
           subject-digest: ${{ steps.build-image.outputs.digest }}
       
