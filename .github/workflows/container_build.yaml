@@ -47,10 +47,10 @@ jobs:
       
       - name: Get Image Digest
         id: get-image-digest
-        run: echo "digest=$(docker inspect --format='{{.Id}}' ghcr.io/vespion/njoy/cobblemon:1.2.0)" >> $GITHUB_OUTPUT
+        run: echo "digest=$(docker inspect --format='{{.Id}}' ${{ inputs.produced_tag }})" >> $GITHUB_OUTPUT
       
       - name: Failure diagnostics
-        if: ${{ failure() }}
+        if: failure()
         uses: EarthBuild/earthbuild/.github/actions/failure-diagnostics@main
 
       - name: Attest Build Provenance
