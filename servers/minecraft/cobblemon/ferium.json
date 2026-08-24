@@ -13,6 +13,12 @@
           }
         },
         {
+          "name": "BlockUI",
+          "identifier": {
+            "CurseForgeProject": 522992
+          }
+        },
+        {
           "name": "Byzantine Styles Pack for Minecolonies",
           "identifier": {
             "ModrinthProject": "5andNzP4"
@@ -37,6 +43,12 @@
           }
         },
         {
+          "name": "Domum Ornamentum",
+          "identifier": {
+            "CurseForgeProject": 527361
+          }
+        },
+        {
           "name": "Fast Noise",
           "identifier": {
             "CurseForgeProject": 1460602
@@ -46,6 +58,12 @@
           "name": "JadeColonies",
           "identifier": {
             "CurseForgeProject": 882310
+          }
+        },
+        {
+          "name": "Lexiconfig",
+          "identifier": {
+            "CurseForgeProject": 1019452
           }
         },
         {
@@ -70,12 +88,6 @@
           "name": "MineColonies: Universal Resources",
           "identifier": {
             "CurseForgeProject": 1643752
-          }
-        },
-        {
-          "name": "Pathfinding Edition for MineColonies",
-          "identifier": {
-            "ModrinthProject": "UFGyxCZm"
           }
         },
         {
@@ -109,9 +121,21 @@
           }
         },
         {
+          "name": "Structurize",
+          "identifier": {
+            "CurseForgeProject": 298744
+          }
+        },
+        {
           "name": "Stylecolonies",
           "identifier": {
             "CurseForgeProject": 827507
+          }
+        },
+        {
+          "name": "TCT Core",
+          "identifier": {
+            "ModrinthProject": "MlsBPB9a"
           }
         }
       ]
