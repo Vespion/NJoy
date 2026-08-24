@@ -57,5 +57,5 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
           subject-name: ${{ inputs.produced_tag }}
-          subject-digest: ${{ steps.build-image.outputs.digest }}
+          subject-digest: ${{ steps.get-image-digest.outputs.digest }}
       
