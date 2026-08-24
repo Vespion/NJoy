@@ -4,9 +4,9 @@ on:
     branches:
       - main
     paths:
-      - server/minecraft/cobblemon/**
-      - server/minecraft/entrypoint.sh
-      - server/minecraft/eula.txt
+      - servers/minecraft/cobblemon/**
+      - servers/minecraft/entrypoint.sh
+      - servers/minecraft/eula.txt
 
 name: Build and Attest (Cobblemon)
 

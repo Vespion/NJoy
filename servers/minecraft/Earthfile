@@ -12,6 +12,12 @@ modrinth-cli:
     FROM python:3-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
     GIT CLONE https://github.com/Dxrmy/modrinth-cli.git /modrinth-cli
 
+ferium:
+    FROM root+wget
+    RUN wget -nv -O ferium-linux-nogui.zip https://github.com/gorilla-devs/ferium/releases/download/v4.7.1/ferium-linux-nogui.zip
+    RUN unzip ferium-linux-nogui.zip -d /usr/local/bin
+    RUN chmod +x /usr/local/bin/ferium
+
 DOWNLOAD_FROM_MODRINTH:
     FUNCTION
     ARG --required manifest

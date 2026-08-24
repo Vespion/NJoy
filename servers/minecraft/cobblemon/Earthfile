@@ -3,23 +3,28 @@ VERSION 0.8
 IMPORT .. AS minecraft
 IMPORT ../../.. AS root
 
-download-additional-files:
+download-additional-datapacks:
     FROM minecraft+modrinth-cli
 
     COPY additional/datapacks.txt datapacks.txt
-    COPY additional/mods.txt mods.txt
-
+   
     DO minecraft+DOWNLOAD_MODRINTH_DATAPACK --manifest datapacks.txt --gameVersion 1.21.1 --loader neoforge --output ./datapacks
-    SAVE ARTIFACT --keep-ts ./datapacks/* /datapacks
+    SAVE ARTIFACT --keep-ts ./datapacks/*
 
-    DO minecraft+DOWNLOAD_FROM_MODRINTH --manifest mods.txt --gameVersion 1.21.1 --loader neoforge --output ./mods
-    SAVE ARTIFACT --keep-ts ./mods/* /mods/
+download-additional-mods:
+    FROM minecraft+ferium
+    WORKDIR /srv/minecraft/mods
+
+    COPY ferium.json /root/.config/ferium/config.json
+    RUN ferium upgrade
+    
+    SAVE ARTIFACT --keep-ts /srv/minecraft/mods/*
 
 download-server-files:
     FROM root+wget
     RUN wget -nv -O server.zip https://mediafilez.forgecdn.net/files/8572/602/ServerFiles-1.2.0.zip
-    RUN unzip server.zip -d /server
-    SAVE ARTIFACT --keep-ts /server/*
+    RUN unzip server.zip -d /srv/minecraft
+    SAVE ARTIFACT --keep-ts /srv/minecraft/*
 
 prepare-server-files:
     FROM niceos/openjdk21:21.0.12-niceos13@sha256:19cc986fed4d5fc6aa924c671611355cbc39199e224e1012203d069c85952d4d
@@ -30,8 +35,8 @@ prepare-server-files:
     ENV ATM10_INSTALL_ONLY true
     RUN chmod +x startserver.sh
 
-    COPY +download-additional-files/mods mods
-    COPY +download-additional-files/datapacks datapacks   
+    COPY +download-additional-datapacks/* datapacks
+    COPY +download-additional-mods/* mods
     
     RUN ./startserver.sh
     

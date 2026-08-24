@@ -13,7 +13,7 @@
       - name: cobblemon
         stop_timeout: 300
         memory:
-          min: "9G"
+          min: "9728M"
           max: "10G"
         image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:

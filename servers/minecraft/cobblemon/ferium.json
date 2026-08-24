@@ -1,0 +1,120 @@
+{
+  "profiles": [
+    {
+      "name": "cobblemon",
+      "output_dir": "/srv/minecraft/mods",
+      "game_version": "1.21.1",
+      "mod_loader": "NeoForge",
+      "mods": [
+        {
+          "name": "AE2 Colonies",
+          "identifier": {
+            "CurseForgeProject": 1566979
+          }
+        },
+        {
+          "name": "Byzantine Styles Pack for Minecolonies",
+          "identifier": {
+            "ModrinthProject": "5andNzP4"
+          }
+        },
+        {
+          "name": "Cobblemon:Colonies",
+          "identifier": {
+            "CurseForgeProject": 1482035
+          }
+        },
+        {
+          "name": "Concurrent Chunk Management Engine (NeoForge)",
+          "identifier": {
+            "ModrinthProject": "COlSi5iR"
+          }
+        },
+        {
+          "name": "Distant Horizons",
+          "identifier": {
+            "ModrinthProject": "uCdwusMi"
+          }
+        },
+        {
+          "name": "Fast Noise",
+          "identifier": {
+            "CurseForgeProject": 1460602
+          }
+        },
+        {
+          "name": "JadeColonies",
+          "identifier": {
+            "CurseForgeProject": 882310
+          }
+        },
+        {
+          "name": "MAtmos - Ambient sound",
+          "identifier": {
+            "ModrinthProject": "bTSEAgRY"
+          }
+        },
+        {
+          "name": "MineColonies",
+          "identifier": {
+            "CurseForgeProject": 245506
+          }
+        },
+        {
+          "name": "MineColonies: Jade crops addon",
+          "identifier": {
+            "ModrinthProject": "UXA4S4VR"
+          }
+        },
+        {
+          "name": "MineColonies: Universal Resources",
+          "identifier": {
+            "CurseForgeProject": 1643752
+          }
+        },
+        {
+          "name": "Pathfinding Edition for MineColonies",
+          "identifier": {
+            "ModrinthProject": "UFGyxCZm"
+          }
+        },
+        {
+          "name": "Project Resonance for MineColonies",
+          "identifier": {
+            "CurseForgeProject": 1415077
+          }
+        },
+        {
+          "name": "Simple Radio",
+          "identifier": {
+            "ModrinthProject": "S7b8mMXS"
+          }
+        },
+        {
+          "name": "Simple Voice Chat",
+          "identifier": {
+            "ModrinthProject": "9eGKb6K1"
+          }
+        },
+        {
+          "name": "Sound Physics Remastered",
+          "identifier": {
+            "ModrinthProject": "qyVF9oeo"
+          }
+        },
+        {
+          "name": "Steam 'n' Rails Neoforge",
+          "identifier": {
+            "ModrinthProject": "L3Jv0QZI"
+          }
+        },
+        {
+          "name": "Stylecolonies",
+          "identifier": {
+            "CurseForgeProject": 827507
+          }
+        }
+      ]
+    }
+  ]
+}
