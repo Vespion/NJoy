@@ -13,11 +13,14 @@
       - name: cobblemon
         stop_timeout: 300
         memory:
-          min: "9728M"
-          max: "10G"
+          min: "10G"
+          max: "11G"
         image: ghcr.io/vespion/njoy/cobblemon:1.2.0
         volumes:
           - cobblemon-world:/srv/minecraft/world
+          - cobblemon-debug:/srv/minecraft/debug
+          - cobblemon-crashes:/srv/minecraft/crash-reports
+          - cobblemon-backups:/srv/minecraft/simplebackups
         ports:
           - "25565:25565/tcp"
           - "24454:24454/udp"

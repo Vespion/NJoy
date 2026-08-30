@@ -8,6 +8,8 @@
 -Xms9G
 -Xmx9G
 
+-server
+
 -XX:+UseG1GC
 -XX:+ParallelRefProcEnabled
 -XX:MaxGCPauseMillis=200
