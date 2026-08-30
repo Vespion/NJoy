@@ -25,7 +25,7 @@ PublishPort={{ port }}
 {% endfor %}
 
 [Service]
-Restart=on-failure
+Restart=unless-stopped
 {% if container.stop_timeout is defined %}
 TimeoutStopSec={{ container.stop_timeout | int + 10 }}
 {% endif %}

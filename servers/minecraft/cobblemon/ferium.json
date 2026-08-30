@@ -121,6 +121,12 @@
           }
         },
         {
+          "name": "Spark",
+          "identifier": {
+            "ModrinthProject": "l6YH9Als"
+          }
+        },
+        {
           "name": "Steam 'n' Rails Neoforge",
           "identifier": {
             "ModrinthProject": "L3Jv0QZI"
