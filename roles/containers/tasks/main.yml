@@ -1,7 +1,0 @@
-- name: Process and deploy each container securely
-  ansible.builtin.include_tasks: process_container.yml
-  loop: "{{ podman_containers }}"
-  loop_control:
-    # Use 'container' instead of 'item' so we don't conflict with nested loops
-    loop_var: container
-    label: "{{ container.name }}"

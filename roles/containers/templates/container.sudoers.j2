@@ -1,1 +1,0 @@
-%gamemasters ALL=(root) NOPASSWD: /usr/bin/journalctl -u {{ container.name }}.service, /usr/bin/systemctl start {{ container.name }}.service, /usr/bin/systemctl stop {{ container.name }}.service, /usr/bin/systemctl restart {{ container.name }}.service

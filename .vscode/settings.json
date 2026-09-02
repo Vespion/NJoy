@@ -3,5 +3,11 @@
     "files.associations": {
         "*.initd.j2": "jinja-shell",
         "*.container.j2": "jinja-systemd",
-    }
+        "*.service.j2": "jinja-systemd",
+        "*.timer.j2": "jinja-systemd",
+        "Caddyfile.j2": "caddyfile",
+    },
+    "ansible.ansible.reuseTerminal": true,
+    "ansible.validation.lint.autoFixOnSave": true,
+    "ansible.mcpServer.enabled": true
 }

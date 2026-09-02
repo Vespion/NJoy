@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_URL="${GITOPS_REPO_URL:-default_value}"
+BRANCH="${GITOPS_BRANCH:-{{ gitops_branch }}}"
+WORKDIR="${GITOPS_WORKDIR:-/var/lib/ansible-pull}"
+PLAYBOOK="${GITOPS_PLAYBOOK:-}"
+
+/usr/bin/flock -n /run/ansible-pull.lock \
+  /usr/bin/ansible-pull \
+    --url "$REPO_URL" \
+    --directory "$WORKDIR" \
+    --checkout "$BRANCH" \
+    --accept-host-key \
+    --only-if-changed \
+    --clean \
+    "$PLAYBOOK"

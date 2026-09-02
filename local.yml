@@ -1,30 +1,14 @@
-- name: NJoy GitOps Configuration
-  hosts: localhost
-  connection: local
-  become: true
-  vars:
-    users:
-      - name: alice
-        groups:
-          - wheel
-      - name: link
-        
-    podman_containers:
-      - name: cobblemon
-        stop_timeout: 300
-        memory:
-          min: "10G"
-          max: "11G"
-        image: ghcr.io/vespion/njoy/cobblemon:1.2.0
-        volumes:
-          - cobblemon-world:/srv/minecraft/world
-          - cobblemon-debug:/srv/minecraft/debug
-          - cobblemon-crashes:/srv/minecraft/crash-reports
-          - cobblemon-backups:/srv/minecraft/simplebackups
-        ports:
-          - "25565:25565/tcp"
-          - "24454:24454/udp"
+---
+- name: Panel
+  hosts: panel
+  remote_user: "{{ ansible_user }}"
   roles:
-    - admin
-    - podman
-    - containers
+    - common
+    - gitops
+
+- name: Wing
+  hosts: wings
+  remote_user: "{{ ansible_user }}"
+  roles:
+    - common
+    - gitops

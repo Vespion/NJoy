@@ -1,0 +1,80 @@
+---
+- name: Get ansible home directory
+  ansible.builtin.shell: "set -euo pipefail ; getent passwd {{ ansible_user }}  | awk -F: '{ print $6 }'"
+  changed_when: false
+  register: gitops_user_home
+
+- name: Add GitOps SSH public key for ansible user
+  register: gitops_key
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "600"
+    content: "{{ lookup('file', 'files/deploy.key') }}"
+    dest: "{{ gitops_user_home.stdout }}/.ssh/gitops"
+
+- name: Add pip
+  become: true
+  become_user: root
+  ansible.builtin.package:
+    name: python3-pip
+    state: present
+
+- name: Add module deps
+  ansible.builtin.pip:
+    name:
+      - paramiko
+    state: present
+
+- name: Configure GitOps SSH
+  become: true
+  become_user: root
+  community.general.ssh_config:
+    user: "{{ ansible_user }}"
+    host: gitops
+    hostname: github.com
+    identity_file: "{{ gitops_user_home.stdout }}/.ssh/gitops"
+
+- name: Create pull wrapper
+  become: true
+  become_user: root
+  ansible.builtin.template:
+    src: templates/ansible-pull-run.sh.j2
+    dest: /usr/local/sbin/ansible-pull-run.sh
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "775"
+
+- name: Copy service unit
+  become: true
+  become_user: root
+  ansible.builtin.template:
+    src: templates/ansible-pull.service.j2
+    dest: /etc/systemd/system/ansible-pull.service
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Reload systemd daemon
+
+- name: Copy service timer
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    src: files/ansible-pull.timer
+    dest: /etc/systemd/system/ansible-pull.timer
+    owner: root
+    group: root
+    mode: "644"
+  notify:
+    - Reload systemd daemon
+
+- name: Enable ansible-pull service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: ansible-pull.timer
+    enabled: true
+    state: started
