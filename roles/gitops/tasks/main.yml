@@ -9,18 +9,25 @@
   become: true
   become_user: root
   ansible.builtin.copy:
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "root"
     mode: "600"
-    content: "{{ lookup('file', 'files/deploy.key') }}"
-    dest: "{{ gitops_user_home.stdout }}/.ssh/gitops"
+    src: files/deploy.key
+    dest: "/root/.ssh/gitops"
+
+- name: Add ansible packages
+  become: true
+  become_user: root
+  ansible.builtin.package:
+    name:
+      - ansible-core
+    state: present
 
 - name: Add pip
   become: true
   become_user: root
+  when: ansible_facts['pkg_mgr'] == "dnf"
   ansible.builtin.package:
     name: python3-pip
-    state: present
 
 - name: Add module deps
   ansible.builtin.pip:
@@ -32,10 +39,10 @@
   become: true
   become_user: root
   community.general.ssh_config:
-    user: "{{ ansible_user }}"
+    user: "root"
     host: gitops
     hostname: github.com
-    identity_file: "{{ gitops_user_home.stdout }}/.ssh/gitops"
+    identity_file: "/root/.ssh/gitops"
 
 - name: Create pull wrapper
   become: true

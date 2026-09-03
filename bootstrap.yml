@@ -105,5 +105,5 @@
         enabled: true
 
     - name: Enable gitops
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: gitops
