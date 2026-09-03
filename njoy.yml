@@ -1,6 +1,8 @@
 ---
 - name: NJoy GitOps
   hosts: localhost
+  connection: local
+  become: true
   remote_user: "{{ ansible_user }}"
   roles:
     - common
