@@ -81,6 +81,6 @@ fi
 
 # 7. Execute Resolved Playbook
 echo "INFO: Resolved playbook target. Executing ${PLAYBOOK}..."
-ansible-playbook "$PLAYBOOK"
+ansible-playbook "$PLAYBOOK" --vault-pass-file /etc/ansible/ansible-vault-password.txt
 
 echo "INFO: GitOps sync completed successfully."

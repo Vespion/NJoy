@@ -106,6 +106,14 @@
         name: fail2ban
         enabled: true
 
+    - name: Add ansible vault password
+      ansible.builtin.copy:
+        dest: "/etc/ansible/ansible-vault-password.txt"
+        src: "vault/{{ ansible_facts.hostname }}/vault-pass.txt"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "600"
+
     - name: Enable gitops
       ansible.builtin.import_role:
         name: gitops
