@@ -81,6 +81,6 @@ fi
 
 # 7. Execute Resolved Playbook
 echo "INFO: Resolved playbook target. Executing ${PLAYBOOK}..."
-ansible-playbook "$PLAYBOOK" -i localhost, -c local
+ansible-playbook "$PLAYBOOK"
 
 echo "INFO: GitOps sync completed successfully."

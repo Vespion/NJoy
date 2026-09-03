@@ -67,7 +67,9 @@
         user: "{{ ansible_user }}"
         state: present
         exclusive: true
-        key: "{{ lookup('file', 'vault/njoy.key.pub') }}"
+        key: "{{ lookup('file', ansible_user_key) }}"
+      vars:
+        ansible_user_key: "vault/{{ ansible_facts.hostname }}/{{ ansible_facts.hostname }}.key.pub"
 
     - name: Add ansible to sudo
       ansible.builtin.copy:
