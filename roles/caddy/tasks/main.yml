@@ -33,6 +33,26 @@
     mode: "775"
   register: caddy_sites_enabled_dir
 
+- name: Create caddy service patch dir
+  ansible.builtin.file:
+    state: directory
+    name: /etc/systemd/system/caddy.service.d
+    owner: root
+    group: root
+    mode: "755"
+
+- name: Patch caddy service to use correct group
+  community.general.ini_file:
+    dest: /etc/systemd/system/caddy.service.d/override.conf
+    owner: root
+    group: root
+    mode: "644"
+    section: Service
+    option: "Group"
+    value: "{{ caddy_service_group.name }}"
+  notify:
+    - Reload systemd daemon
+
 - name: Install caddy role
   ansible.builtin.import_role:
     name: caddy_ansible.caddy_ansible

@@ -20,6 +20,7 @@
   ansible.builtin.package:
     name:
       - ansible-core
+      - git
     state: present
 
 - name: Add pip

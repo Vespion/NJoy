@@ -104,6 +104,14 @@
       ansible.builtin.import_role:
         name: fail2ban
 
+    - name: Create ansible config directory
+      ansible.builtin.file:
+        name: /etc/ansible
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "775"
+
     - name: Add ansible vault password
       ansible.builtin.copy:
         dest: "/etc/ansible/ansible-vault-password.txt"
