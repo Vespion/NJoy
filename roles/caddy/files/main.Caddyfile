@@ -1,0 +1,57 @@
+# --- REUSABLE SNIPPETS ---
+
+(proxy_error_handler) {
+	@error status 4xx 5xx
+
+	handle_response @error {
+		@has_content_length header_regexp Content-Length ^[1-9][0-9]*$
+		@has_chunked header Transfer-Encoding *chunked*
+
+		handle @has_content_length {
+			copy_response
+		}
+		handle @has_chunked {
+			copy_response
+		}
+		handle {
+			error {http.reverse_proxy.status_code}
+		}
+	}
+}
+
+(static_error_pages) {
+	handle_errors {
+		# STEP 1: Check for site-specific error pages.
+		# This uses the `root` defined in the individual site block.
+		@site_custom_err file /{err.status_code}.html /error.html
+
+		handle @site_custom_err {
+			rewrite * {file_match.relative}
+			file_server
+		}
+
+		# STEP 2: Fallback to the shared global directory.
+		# This catch-all handle only runs if the site-specific pages were not found.
+		handle {
+			# Define the global shared path for default error pages
+			root * /var/www/shared_status_pages
+
+			# Check if the error files exist in this shared directory
+			@shared_custom_err file /{err.status_code}.html /index.html
+
+			handle @shared_custom_err {
+				rewrite * {file_match.relative}
+				file_server
+			}
+
+			# STEP 3: Absolute fallback if the shared HTML files are missing.
+			handle {
+				respond "Error {err.status_code}" {err.status_code}
+			}
+		}
+	}
+}
+
+# --- SITE IMPORTS ---
+# Import all site configurations from a subdirectory
+import /etc/caddy/sites-enabled/*.caddy

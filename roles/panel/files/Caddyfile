@@ -1,0 +1,8 @@
+hoenn.me.uk {
+	root * /srv/panel/public
+
+	import static_error_pages
+
+	# Trigger errors for certain paths
+	error /* "Maintenance Mode" 503
+}

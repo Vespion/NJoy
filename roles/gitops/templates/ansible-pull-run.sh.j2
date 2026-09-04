@@ -23,7 +23,7 @@ mkdir -p "$WORKDIR"
 # 3. Git Operations (Replicating --clean and --only-if-changed)
 if [ ! -d "$WORKDIR/.git" ]; then
     echo "INFO: Performing initial clone of $REPO_URL (branch: $BRANCH)..."
-    git clone --branch "$BRANCH" "$REPO_URL" "$WORKDIR"
+    git clone --recurse-submodules --branch "$BRANCH" "$REPO_URL" "$WORKDIR"
     cd "$WORKDIR"
     CHANGED=true
 else
@@ -36,6 +36,12 @@ else
     git fetch origin "$BRANCH"
     git reset --hard "origin/$BRANCH"
     git clean -fdx
+
+    # Sync and update submodules to match the newly checked-out tree
+    echo "INFO: Updating git submodules..."
+    git submodule update --init --recursive
+    # Ensure submodule directories are also thoroughly cleaned of untracked files
+    git submodule foreach --recursive git clean -fdx
 
     NEW_HEAD=$(git rev-parse HEAD)
 

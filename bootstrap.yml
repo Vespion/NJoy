@@ -95,6 +95,11 @@
         rule: allow
         name: SSH
 
+    - name: Allow ICMP through UFW
+      community.general.ufw:
+        rule: allow
+        name: ICMP
+
     - name: Enable UFW with default deny
       community.general.ufw:
         state: enabled

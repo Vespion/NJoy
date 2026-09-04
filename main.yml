@@ -1,7 +1,6 @@
 ---
-- name: NJoy GitOps
-  hosts: localhost
-  connection: local
+- name: Panel Configuration
+  hosts: panel
   become: true
   remote_user: "{{ ansible_user }}"
   roles:

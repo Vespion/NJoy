@@ -1,0 +1,7 @@
+---
+- name: Reload caddy
+  become: true
+  become_user: root
+  ansible.builtin.service:
+    name: caddy
+    state: reloaded
