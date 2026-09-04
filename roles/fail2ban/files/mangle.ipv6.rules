@@ -1,0 +1,19 @@
+*mangle
+:PREROUTING ACCEPT [0:0]
+# Drop all packets flagged as INVALID by connection tracking
+-A PREROUTING -m conntrack --ctstate INVALID -j DROP
+# Drop NEW incoming TCP packets that do not have the SYN flag (possible scans/attacks)
+-A PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -j DROP
+# Drop packets with all TCP flags set (Xmas tree scan)
+-A PREROUTING -p tcp --tcp-flags ALL ALL -j DROP
+# Drop packets with no TCP flags set (NULL scan)
+-A PREROUTING -p tcp --tcp-flags ALL NONE -j DROP
+# Drop TCP packets with illegal flag combinations
+-A PREROUTING -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+-A PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+# Drop IPv6 ULA (Unique Local Addresses) and spoofed loopback
+-A PREROUTING -s fc00::/7 -j DROP
+-A PREROUTING ! -i lo -s ::1/128 -j DROP
+# Drop TCP packets with an invalid MSS (Maximum Segment Size)
+-A PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss 1220:65535 -j DROP
+COMMIT

@@ -1,0 +1,43 @@
+---
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - fail2ban-server
+    state: present
+
+- name: Copy jail configuration
+  ansible.builtin.copy:
+    src: "files/jail.conf"
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "644"
+
+- name: Copy configuration
+  ansible.builtin.copy:
+    src: "files/fail2ban.conf"
+    dest: /etc/fail2ban/fail2ban.local
+    owner: root
+    group: root
+    mode: "644"
+
+- name: Add mangle rules (ipv4)
+  notify:
+    - Reload ufw
+  ansible.builtin.blockinfile:
+    dest: /etc/ufw/before.rules
+    block: "{{ lookup('file', 'files/mangle.ipv4.rules') }}"
+
+- name: Add mangle rules (ipv6)
+  notify:
+    - Reload ufw
+  ansible.builtin.blockinfile:
+    dest: /etc/ufw/before6.rules
+    block: "{{ lookup('file', 'files/mangle.ipv6.rules') }}"
+
+# - name: Add kernel hardening rules
+#   notify:
+#     - Reload ufw
+#   ansible.builtin.blockinfile:
+#     dest: /etc/ufw/sysctl.conf
+#     block: "{{ lookup('file', 'files/sysctl.conf') }}"

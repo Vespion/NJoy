@@ -7,7 +7,6 @@
   vars:
     packages:
       - ufw
-      - fail2ban
       - python3
 
   handlers:
@@ -95,21 +94,15 @@
         rule: allow
         name: SSH
 
-    - name: Allow ICMP through UFW
-      community.general.ufw:
-        rule: allow
-        name: ICMP
-
     - name: Enable UFW with default deny
       community.general.ufw:
         state: enabled
         default: deny
       notify: Reload ufw
 
-    - name: Enable fail2ban service
-      ansible.builtin.service:
+    - name: Enable fail2ban
+      ansible.builtin.import_role:
         name: fail2ban
-        enabled: true
 
     - name: Add ansible vault password
       ansible.builtin.copy:
