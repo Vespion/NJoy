@@ -10,4 +10,4 @@ User=root
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
-LoadCredentialEncrypted=ansible_vault_pass:/etc/secure-credentials/vault-pass.cred
+SetCredentialEncrypted=ansible_vault_pass:{{ gitops_vault_pass.value | replace('\n', '') }}

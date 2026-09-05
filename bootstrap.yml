@@ -104,33 +104,6 @@
       ansible.builtin.import_role:
         name: fail2ban
 
-    - name: Create secure credentials directory
-      ansible.builtin.file:
-        name: /etc/secure-credentials
-        state: directory
-        owner: root
-        group: root
-        mode: "0700"
-
-    - name: Transfer vault password to RAM temporarily
-      ansible.builtin.copy:
-        dest: "/run/vault-pass.txt.tmp"
-        src: "vault/{{ ansible_facts.hostname }}/vault-pass.txt"
-        owner: root
-        group: root
-        mode: "0600"
-
-    - name: Encrypt vault password
-      ansible.builtin.command:
-        cmd: systemd-creds encrypt /run/vault-pass.txt.tmp /etc/secure-credentials/vault-pass.cred
-      args:
-        creates: /etc/secure-credentials/vault-pass.cred
-
-    - name: Securely erase plain text temporary file
-      ansible.builtin.file:
-        path: /run/vault-pass.txt.tmp
-        state: absent
-
     - name: Enable gitops
       ansible.builtin.import_role:
         name: gitops

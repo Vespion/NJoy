@@ -55,6 +55,12 @@
     group: "{{ ansible_user }}"
     mode: "775"
 
+- name: Encrypt vault password
+  community.general.systemd_creds_encrypt:
+    name: ansible_vault_pass
+    secret: "{{ lookup('file', '../../vault/' + ansible_facts.hostname + '/vault-pass.txt') }}"
+  register: gitops_vault_pass
+
 - name: Copy service unit
   become: true
   become_user: root
