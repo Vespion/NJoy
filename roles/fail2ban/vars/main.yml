@@ -1,0 +1,14 @@
+---
+fail2ban_protected_ports:
+  - port: 80
+    connlimit: 100
+    synlimit_rate: "30/second"
+    synlimit_burst: 60
+  - port: 443
+    connlimit: 100
+    synlimit_rate: "30/second"
+    synlimit_burst: 60
+  - port: 22
+    connlimit: 10
+    synlimit_rate: "3/minute"
+    synlimit_burst: 5

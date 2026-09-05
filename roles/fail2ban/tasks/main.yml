@@ -5,14 +5,6 @@
       - fail2ban-server
     state: present
 
-- name: Copy jail configuration
-  ansible.builtin.copy:
-    src: "files/jail.conf"
-    dest: /etc/fail2ban/jail.local
-    owner: root
-    group: root
-    mode: "644"
-
 - name: Copy configuration
   ansible.builtin.copy:
     src: "files/fail2ban.conf"
@@ -21,23 +13,64 @@
     group: root
     mode: "644"
 
+- name: Insert IPv4 rate limit rules
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/before.rules
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - UFW RATE LIMITS IPv4"
+    insertbefore: "^COMMIT"
+    block: "{{ lookup('ansible.builtin.template', 'ufw_syn_flood_ipv4.j2') }}"
+    backup: true
+  notify: &ufw_reload_handler Reload ufw
+
+- name: Insert IPv6 rate limit rules
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/before6.rules
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - UFW RATE LIMITS IPv6"
+    insertbefore: "^COMMIT"
+    block: "{{ lookup('ansible.builtin.template', 'ufw_syn_flood_ipv6.j2') }}"
+    backup: true
+  notify: *ufw_reload_handler
+
+- name: Copy syncflood filter
+  ansible.builtin.copy:
+    src: "files/syncflood.conf"
+    dest: /etc/fail2ban/filter.d/syncflood.conf
+    owner: root
+    group: root
+    mode: "644"
+
+- name: Copy connlimit filter
+  ansible.builtin.copy:
+    src: "files/connlimit.conf"
+    dest: /etc/fail2ban/filter.d/connlimit.conf
+    owner: root
+    group: root
+    mode: "644"
+
+- name: Copy jail configs
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/fail2ban/jail.d/
+    owner: root
+    group: root
+    mode: "644"
+  with_fileglob:
+    - "files/*.local"
+
 - name: Add mangle rules (ipv4)
-  notify:
-    - Reload ufw
+  notify: *ufw_reload_handler
   ansible.builtin.blockinfile:
     dest: /etc/ufw/before.rules
     block: "{{ lookup('file', 'files/mangle.ipv4.rules') }}"
 
 - name: Add mangle rules (ipv6)
-  notify:
-    - Reload ufw
+  notify: *ufw_reload_handler
   ansible.builtin.blockinfile:
     dest: /etc/ufw/before6.rules
     block: "{{ lookup('file', 'files/mangle.ipv6.rules') }}"
 
-# - name: Add kernel hardening rules
-#   notify:
-#     - Reload ufw
-#   ansible.builtin.blockinfile:
-#     dest: /etc/ufw/sysctl.conf
-#     block: "{{ lookup('file', 'files/sysctl.conf') }}"
+- name: Add kernel hardening rules
+  notify: *ufw_reload_handler
+  ansible.builtin.blockinfile:
+    dest: /etc/ufw/sysctl.conf
+    block: "{{ lookup('file', 'files/sysctl.conf') }}"

@@ -1,0 +1,13 @@
+[recidive]
+enabled = true
+usedns = no
+filter = recidive
+banaction = nftables[type=allports, blocktype=drop]
+logpath = /var/log/fail2ban.log
+maxretry = 3
+findtime = 1d
+bantime = 7d
+bantime.increment = true
+bantime.factor = 2
+bantime.maxtime = 21d
+bantime.rndtime = 1m

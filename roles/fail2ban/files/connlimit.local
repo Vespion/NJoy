@@ -1,0 +1,14 @@
+[connlimit]
+enabled = true
+backend = systemd
+journalmatch = _TRANSPORT=kernel
+usedns = no
+filter = connlimit
+banaction = nftables[type=allports, blocktype=drop]
+maxretry = 3
+findtime = 5m
+bantime = 5m
+bantime.increment = true
+bantime.factor = 2
+bantime.maxtime = 1h
+bantime.rndtime = 1m
