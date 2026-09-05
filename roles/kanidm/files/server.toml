@@ -61,7 +61,7 @@ tls_key = "/data/key.pem"
 #   NOTE: this can be overridden by the environment variable
 #   `KANIDM_LOG_LEVEL` at runtime
 #   Defaults to "info"
-# log_level = "info"
+log_level = "debug"
 #
 #   The DNS domain name of the server. This is used in a
 #   number of security-critical contexts
@@ -106,13 +106,19 @@ origin = "https://idm.hoenn.me.uk"
 #   Only one option can be used at a time.
 [http_client_address_info]
 proxy-v2 = [
-    "127.0.0.1/32",      # Host loopback
-    "172.17.0.1/32",     # Default Docker bridge host gateway (docker0)
-    "172.16.0.0/12"      # Docker custom bridge subnets
+    "127.0.0.1/32",      # Host loopback (IPv4)
+    "::1/128",           # Host loopback (IPv6)
+    "82.22.20.40"
 ]
 #   # OR
 # [http_client_address_info]
 # x-forward-for = ["127.0.0.1", "127.0.0.0/8"]
+# x-forward-for = [
+#     "127.0.0.1/32",
+#     "::1/128",
+#     "10.0.2.2/32",
+#     "10.88.0.0/16"
+# ]
 #   # OR
 # [http_client_address_info]
 # # AVOID IF POSSIBLE!!!

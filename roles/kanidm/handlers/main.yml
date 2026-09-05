@@ -1,0 +1,19 @@
+---
+- name: Reload caddy
+  become: true
+  become_user: root
+  ansible.builtin.service:
+    name: caddy
+    state: reloaded
+
+- name: Restart kanidm
+  become: true
+  become_user: "{{ kanidm_service_user.name }}"
+  ansible.builtin.systemd_service:
+    # The service name corresponds to the quadlet_filename defined above
+    name: kanidm.service
+    scope: user
+    state: restarted
+  environment:
+    # Required to connect to the user's systemd D-Bus socket
+    XDG_RUNTIME_DIR: "/run/user/{{ kanidm_service_user.uid }}"

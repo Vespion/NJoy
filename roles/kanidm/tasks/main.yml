@@ -17,35 +17,21 @@
     owner: "{{ kanidm_service_user.name }}"
 
 - name: Copy server config
+  notify: Restart kanidm
   ansible.builtin.copy:
     src: files/server.toml
     dest: "{{ kanidm_service_user.home }}/data/server.toml"
     owner: "{{ kanidm_service_user.name }}"
     mode: "444"
 
-- name: Generate key
-  become: true
-  become_user: root
-  community.crypto.openssl_privatekey:
-    owner: "{{ kanidm_service_user.name }}"
-    group: "{{ kanidm_service_user.name }}"
-    mode: "400"
-    path: "{{ kanidm_service_user.home }}/data/key.pem"
-
-- name: Generate certificate
-  become: true
-  become_user: root
-  community.crypto.x509_certificate:
-    group: "{{ caddy_service_group.name }}"
-    owner: "{{ kanidm_service_user.name }}"
-    mode: "444"
-    path: "{{ kanidm_service_user.home }}/data/chain.pem"
-    privatekey_path: "{{ kanidm_service_user.home }}/data/key.pem"
-    provider: selfsigned
+- name: Import cert tasks
+  ansible.builtin.import_tasks:
+    file: certs.yml
 
 - name: Generate server container Quadlet
   become: true
   become_user: "{{ kanidm_service_user.name }}"
+  notify: Restart kanidm
   containers.podman.podman_container:
     name: kanidm-server
     image: docker.io/kanidm/server:latest
@@ -84,7 +70,6 @@
     # The service name corresponds to the quadlet_filename defined above
     name: kanidm.service
     scope: user
-    state: started
     enabled: true
   environment:
     # Required to connect to the user's systemd D-Bus socket
