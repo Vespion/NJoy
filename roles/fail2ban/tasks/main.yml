@@ -18,7 +18,7 @@
     path: /etc/ufw/before.rules
     marker: "# {mark} ANSIBLE MANAGED BLOCK - UFW RATE LIMITS IPv4"
     insertbefore: "^COMMIT"
-    block: "{{ lookup('ansible.builtin.template', 'ufw_syn_flood_ipv4.j2') }}"
+    block: "{{ lookup('ansible.builtin.template', 'templates/adaptive.ipv4.rules.j2') }}"
     backup: true
   notify: &ufw_reload_handler Reload ufw
 
@@ -27,14 +27,14 @@
     path: /etc/ufw/before6.rules
     marker: "# {mark} ANSIBLE MANAGED BLOCK - UFW RATE LIMITS IPv6"
     insertbefore: "^COMMIT"
-    block: "{{ lookup('ansible.builtin.template', 'ufw_syn_flood_ipv6.j2') }}"
+    block: "{{ lookup('ansible.builtin.template', 'templates/adaptive.ipv6.rules.j2') }}"
     backup: true
   notify: *ufw_reload_handler
 
-- name: Copy syncflood filter
+- name: Copy synflood filter
   ansible.builtin.copy:
-    src: "files/syncflood.conf"
-    dest: /etc/fail2ban/filter.d/syncflood.conf
+    src: "files/synflood.conf"
+    dest: /etc/fail2ban/filter.d/synflood.conf
     owner: root
     group: root
     mode: "644"
