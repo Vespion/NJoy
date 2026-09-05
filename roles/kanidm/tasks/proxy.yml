@@ -1,0 +1,19 @@
+---
+- name: Deploy proxy configuration
+  ansible.builtin.template:
+    src: "Caddyfile.j2"
+    dest: "{{ kanidm_service_user.home }}/Caddyfile"
+    owner: "{{ kanidm_service_user.name }}"
+    group: "{{ caddy_service_group.name }}"
+    mode: "644"
+
+- name: Enable proxy configuration
+  become: true
+  become_user: caddy
+  notify: Reload caddy
+  ansible.builtin.file:
+    src: "{{ kanidm_service_user.home }}/Caddyfile"
+    dest: "{{ caddy_sites_enabled_dir.path }}/kanidm.caddy"
+    mode: "644"
+    force: true
+    state: link

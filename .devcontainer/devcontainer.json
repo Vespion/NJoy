@@ -35,7 +35,8 @@
         "samuelcolvin.jinjahtml",
         "ms-azuretools.vscode-containers",
         "earthly.earthfile-syntax-highlighting",
-        "matthewpi.caddyfile-support"
+        "matthewpi.caddyfile-support",
+        "Shellomo.enhanced-toml"
       ]
     }
   }

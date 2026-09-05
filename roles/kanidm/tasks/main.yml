@@ -1,0 +1,95 @@
+---
+- name: Import podman tasks
+  ansible.builtin.import_tasks:
+    file: podman.yml
+
+- name: Modify srv traversal permissions
+  ansible.builtin.file:
+    dest: "{{ kanidm_service_user.home }}"
+    state: directory
+    mode: "775"
+
+- name: Create data dir
+  ansible.builtin.file:
+    state: directory
+    path: "{{ kanidm_service_user.home }}/data"
+    mode: "775"
+    owner: "{{ kanidm_service_user.name }}"
+
+- name: Copy server config
+  ansible.builtin.copy:
+    src: files/server.toml
+    dest: "{{ kanidm_service_user.home }}/data/server.toml"
+    owner: "{{ kanidm_service_user.name }}"
+    mode: "444"
+
+- name: Generate key
+  become: true
+  become_user: root
+  community.crypto.openssl_privatekey:
+    owner: "{{ kanidm_service_user.name }}"
+    group: "{{ kanidm_service_user.name }}"
+    mode: "400"
+    path: "{{ kanidm_service_user.home }}/data/key.pem"
+
+- name: Generate certificate
+  become: true
+  become_user: root
+  community.crypto.x509_certificate:
+    group: "{{ caddy_service_group.name }}"
+    owner: "{{ kanidm_service_user.name }}"
+    mode: "444"
+    path: "{{ kanidm_service_user.home }}/data/chain.pem"
+    privatekey_path: "{{ kanidm_service_user.home }}/data/key.pem"
+    provider: selfsigned
+
+- name: Generate server container Quadlet
+  become: true
+  become_user: "{{ kanidm_service_user.name }}"
+  containers.podman.podman_container:
+    name: kanidm-server
+    image: docker.io/kanidm/server:latest
+    state: quadlet
+    quadlet_filename: kanidm
+    ports:
+      - "127.0.0.1:8443:8443"
+    # SELINUX NOTE: Append :Z (private unshared) or :z (shared) to volumes.
+    # Quadlet will automatically trigger Podman to relabel the host path.
+    volume:
+      - "{{ kanidm_service_user.home }}/data:/data:Z"
+    pull: newer
+    security_opt:
+      - seccomp=unconfined
+      - label=disable
+    quadlet_options:
+      - AutoUpdate=registry
+  environment:
+    # Required for the module to resolve the user's default paths correctly
+    XDG_RUNTIME_DIR: "/run/user/{{ kanidm_service_user.uid }}"
+
+- name: Reload systemd user daemon
+  become: true
+  become_user: "{{ kanidm_service_user.name }}"
+  ansible.builtin.systemd_service:
+    scope: user
+    daemon_reload: true
+  environment:
+    # Required to connect to the user's systemd D-Bus socket
+    XDG_RUNTIME_DIR: "/run/user/{{ kanidm_service_user.uid }}"
+
+- name: Enable kanidm service
+  become: true
+  become_user: "{{ kanidm_service_user.name }}"
+  ansible.builtin.systemd_service:
+    # The service name corresponds to the quadlet_filename defined above
+    name: kanidm.service
+    scope: user
+    state: started
+    enabled: true
+  environment:
+    # Required to connect to the user's systemd D-Bus socket
+    XDG_RUNTIME_DIR: "/run/user/{{ kanidm_service_user.uid }}"
+
+- name: Import proxy tasks
+  ansible.builtin.import_tasks:
+    file: proxy.yml

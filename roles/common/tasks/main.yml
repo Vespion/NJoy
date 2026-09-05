@@ -6,3 +6,9 @@
     apply:
       become: true
       become_user: root
+
+- name: Sync admin SSH keys
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    state: present
+    key: https://github.com/vespion.keys

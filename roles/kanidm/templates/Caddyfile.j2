@@ -1,0 +1,17 @@
+idm.hoenn.me.uk {
+	import static_error_pages
+
+	reverse_proxy https://localhost:8443 {
+		import proxy_error_handler
+
+		header_up Host {host}
+
+		transport http {
+			proxy_protocol v2
+
+			tls_server_name idm.hoenn.me.uk
+
+			tls_trust_pool file "{{ kanidm_service_user.home }}/data/chain.pem"
+		}
+	}
+}

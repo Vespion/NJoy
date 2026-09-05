@@ -1,6 +1,6 @@
 ---
 - name: NJoy GitOps
-  hosts: localhost
+  hosts: "{{ host_override | default('localhost') }}"
   connection: local
   become: true
   remote_user: "{{ ansible_user }}"
@@ -10,3 +10,12 @@
     - gitops
     - caddy
     - panel
+    - kanidm
+    - role: geerlingguy.ntp
+      vars:
+        ntp_enabled: true
+        ntp_manage_config: true
+        ntp_timezone: Europe/London
+        ntp_tinker_panic: true
+        ntp_cron_handler_enabled: true
+        ntp_area: Europe

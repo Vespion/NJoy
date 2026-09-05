@@ -1,8 +1,9 @@
 ---
-# THIS WILL NOT BE AUTO-UPDATED BY ANSIBLE-PULL!
-# Ensure you install these manually on the host before running ansible-pull via ansible-galaxy
 collections:
   - name: community.general
+  - name: community.crypto
   - name: ansible.posix
+  - name: containers.podman
 roles:
   - name: caddy_ansible.caddy_ansible
+  - name: geerlingguy.ntp
