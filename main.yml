@@ -1,13 +1,9 @@
 ---
 - name: Panel Configuration
-  hosts: panel
   become: true
   remote_user: "{{ ansible_user }}"
+  hosts: panel
   roles:
-    - fail2ban
-    - common
-    - gitops
-    - caddy
     - panel
 
 - name: Id configuration
@@ -15,8 +11,4 @@
   become: true
   remote_user: "{{ ansible_user }}"
   roles:
-    - fail2ban
-    - common
-    - gitops
-    - caddy
     - kanidm

@@ -5,10 +5,6 @@
   become: true
   remote_user: "{{ ansible_user }}"
   roles:
-    - fail2ban
-    - common
-    - gitops
-    - caddy
     - panel
     - kanidm
     - role: geerlingguy.ntp

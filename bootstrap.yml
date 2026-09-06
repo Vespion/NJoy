@@ -43,8 +43,16 @@
         mode: "0440"
         group: root
         owner: root
-        content: "{{ admin_user }}\tALL = (ALL) NOPASSWD:ALL" # noqa: ansible-lint no-tabs
-        dest: /etc/sudoers.d/admin
+        content: "{{ admin_user }}\tALL = (ALL) NOPASSWD:ALL\n" # noqa: ansible-lint no-tabs
+        dest: /etc/sudoers.d/10-admin
+        validate: "visudo -cf %s"
+
+    - name: Ensure local wheel group has sudo access
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/00-wheel-sudo
+        content: "%wheel ALL=(ALL) NOPASSWD:ALL\n"
+        mode: "0440"
+        validate: "visudo -cf %s"
 
     - name: Add ansible group
       ansible.builtin.group:

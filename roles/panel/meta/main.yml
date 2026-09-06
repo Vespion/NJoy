@@ -1,3 +1,4 @@
 ---
 dependencies:
   - role: caddy
+  - role: gitops

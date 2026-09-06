@@ -1,0 +1,108 @@
+---
+- name: Add kanidm repository (fedora)
+  when: ansible_facts['distribution'] == "Fedora"
+  ansible.builtin.get_url:
+    url: "https://download.opensuse.org/repositories/network:/idm/Fedora_{{ [[ansible_facts['distribution_major_version'] | int, 42] | ansible.builtin.max, 44] |
+      ansible.builtin.min }}/network:idm.repo"
+    dest: "/etc/yum.repos.d/kanidm.repo"
+    mode: "644"
+
+- name: Install kanidm packages
+  ansible.builtin.package:
+    name:
+      - kanidm-unixd-clients
+    state: present
+
+- name: Create kanidm config dir
+  become: true
+  become_user: root
+  ansible.builtin.file:
+    state: directory
+    path: /etc/kanidm
+    mode: "775"
+
+- name: Configure kanidm PAM daemon
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    dest: /etc/kanidm/unixd
+    src: files/unixd.toml
+    mode: "644"
+    owner: root
+
+- name: Configure kanidm client
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    dest: /etc/kanidm/config
+    src: files/config.toml
+    mode: "644"
+    owner: root
+
+- name: Check current SELinux permissive domains
+  ansible.builtin.command: semanage permissive -l
+  register: kanidm_users_semanage_permissive_list
+  changed_when: false
+  check_mode: false
+
+- name: Set unconfined_service_t to permissive (Kanidm requirement for Fedora)
+  ansible.builtin.command: semanage permissive -a unconfined_service_t
+  when: "ansible_facts['distribution'] == 'Fedora' and 'unconfined_service_t' not in kanidm_users_semanage_permissive_list.stdout"
+  changed_when: true
+
+- name: Check if custom authselect profile for Kanidm exists
+  ansible.builtin.stat:
+    path: /etc/authselect/custom/kanidm
+  register: kanidm_users_authselect_kanidm_profile
+
+- name: Create fresh custom authselect profile from sssd base
+  when: not kanidm_users_authselect_kanidm_profile.stat.exists
+  ansible.builtin.command:
+    cmd: authselect create-profile kanidm -b sssd
+
+- name: Patch nsswitch.conf to use kanidm instead of sss
+  ansible.builtin.replace:
+    path: /etc/authselect/custom/kanidm/nsswitch.conf
+    # Matches 'sss' as a distinct word so we don't accidentally break other lines
+    regexp: "\\bsss\\b"
+    replace: "kanidm"
+
+- name: Patch PAM files to use pam_kanidm.so instead of pam_sss.so
+  ansible.builtin.replace:
+    path: "/etc/authselect/custom/kanidm/{{ item }}"
+    regexp: "pam_sss\\.so"
+    replace: "pam_kanidm.so"
+  loop:
+    - system-auth
+    - password-auth
+    - smartcard-auth
+    - fingerprint-auth
+    - postlogin
+
+- name: Ensure SSH service permits PAM authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: "^#?UsePAM", line: "UsePAM yes" }
+  notify: Restart SSHD
+
+- name: Check currently active authselect profile
+  ansible.builtin.command: authselect current
+  register: kanidm_users_authselect_current
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Enforce custom Kanidm authselect profile
+  ansible.builtin.command:
+    cmd: authselect select custom/kanidm --force
+  when: "'custom/kanidm' not in kanidm_users_authselect_current.stdout"
+  changed_when: true
+
+- name: Enable daemon serice
+  ansible.builtin.service:
+    name: kanidm-unixd
+    state: started
