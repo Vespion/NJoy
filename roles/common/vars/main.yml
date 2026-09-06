@@ -1,3 +1,0 @@
----
-common_additional_dnf_packages:
-  - acl

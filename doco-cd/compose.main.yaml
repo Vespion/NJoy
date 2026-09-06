@@ -1,0 +1,25 @@
+services:
+  app:
+    container_name: doco-cd
+    image: ghcr.io/kimdre/doco-cd:latest
+    restart: unless-stopped
+    environment:
+      TZ: Europe/London
+      HTTP_PORT: 8034
+      POLL_CONFIG: |
+        - url: git@github.com:Vespion/NJoy.git
+          reference: dooc
+          interval: 300
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - data:/data
+    cap_drop:
+      - ALL
+    healthcheck:
+      start_period: 15s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  data:

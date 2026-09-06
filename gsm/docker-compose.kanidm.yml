@@ -1,0 +1,39 @@
+volumes:
+  kanidm_config:
+  kanidm_data:
+
+services:
+
+  kanidm-certs-dumper:
+    image: ldez/traefik-certs-dumper:latest
+    # Watch acme.json and extract to the shared volume, then ensure files are readable
+    command: file --watch --version v2 --source /traefik/acme.json --dest /certs --post-hook "chmod -R 755 /certs"
+    volumes:
+      - proxy_certs:/traefik:ro    # Mount the directory containing Traefik's acme.json
+      - kanidm_config:/certs      # Shared volume for the extracted certificates
+    restart: unless-stopped
+
+  kanidm:
+    container_name: kanidm
+    restart: "always"
+    image: kanidm/server:latest
+    volumes:
+      - "kanidm_data:/var/lib/kanidm/"
+      - "kanidm_config:/data"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # --- A. DUMMY HTTP ROUTER (Triggers Let's Encrypt Generation) ---
+      - "traefik.http.routers.kanidm-cert.rule=Host(`idm.hoenn.me.uk`)"
+      - "traefik.http.routers.kanidm-cert.entrypoints=websecure"
+      - "traefik.http.routers.kanidm-cert.tls.certresolver=letsencrypt" 
+      - "traefik.http.routers.kanidm-cert.service=noop@internal" # Sends no actual traffic here
+
+      # --- B. ACTUAL TCP ROUTER (Handles TLS Passthrough) ---
+      - "traefik.tcp.routers.kanidm.rule=HostSNI(`idm.hoenn.me.uk`)"
+      - "traefik.tcp.routers.kanidm.entrypoints=websecure"
+      - "traefik.tcp.routers.kanidm.tls.passthrough=true"
+      - "traefik.tcp.routers.kanidm.service=kanidm-svc"
+      - "traefik.tcp.services.kanidm-svc.loadbalancer.server.port=8443"

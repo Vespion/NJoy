@@ -1,4 +1,0 @@
----
-dependencies:
-  - role: common
-  - role: fail2ban

@@ -1,0 +1,27 @@
+services:
+  app:
+    container_name: doco-cd-updater
+    image: ghcr.io/kimdre/doco-cd:latest
+    restart: unless-stopped
+    environment:
+      TZ: Europe/London
+      HTTP_PORT: 8000
+      POLL_CONFIG: |
+        - url: git@github.com:Vespion/NJoy.git
+          reference: dooc
+          interval: 300
+          target: updater  # deploys the updater target on change
+      SCHEDULER_ENABLED: false  # disable scheduler on updater instance
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - updater-data:/data
+    cap_drop:
+      - ALL
+    healthcheck:
+      start_period: 15s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  updater-data:

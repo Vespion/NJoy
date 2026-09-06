@@ -1,9 +1,0 @@
----
-collections:
-  - name: community.general
-  - name: community.crypto
-  - name: ansible.posix
-  - name: containers.podman
-roles:
-  - name: caddy_ansible.caddy_ansible
-  - name: geerlingguy.ntp
