@@ -5,8 +5,8 @@
 # To set the minimum to 2.5GB: -Xms2500M
 # A good default for a modded server is 4GB.
 
--Xms9G
--Xmx9G
+-Xms10G
+-Xmx10G
 
 -server
 

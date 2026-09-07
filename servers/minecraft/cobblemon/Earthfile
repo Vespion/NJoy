@@ -22,7 +22,7 @@ download-additional-mods:
 
 download-server-files:
     FROM root+wget
-    RUN wget -nv -O server.zip https://mediafilez.forgecdn.net/files/8572/602/ServerFiles-1.2.0.zip
+    RUN wget -nv -O server.zip https://mediafilez.forgecdn.net/files/8822/160/ServerFiles-1.3.0.zip
     RUN unzip server.zip -d /srv/minecraft
     SAVE ARTIFACT --keep-ts /srv/minecraft/*
 
