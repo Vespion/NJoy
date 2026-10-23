@@ -51,7 +51,7 @@ jobs:
       
       - name: Failure diagnostics
         if: failure()
-        uses: EarthBuild/earthbuild/.github/actions/failure-diagnostics@main
+        uses: EarthBuild/earthbuild/.github/actions/failure-diagnostics@ee44fd3268c8aba21e831ba7313ae0ae558ee097 # main
 
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
