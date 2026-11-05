@@ -9,7 +9,7 @@ mc-monitor:
     SAVE ARTIFACT --keep-ts mc-monitor
 
 modrinth-cli:
-    FROM python:3-slim@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
+    FROM python:3-slim@sha256:f0aecb335180611a3a000c45def529ec8ee768d5d26ff24bae4dfb70594a9121
     GIT CLONE https://github.com/Dxrmy/modrinth-cli.git /modrinth-cli
 
 ferium:
